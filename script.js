@@ -15,9 +15,9 @@ const fireDepartment = L.icon({
 });
 
 // Add OpenStreetMap tile layer
+
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  attribution: "© OpenStreetMap contributors",
 }).addTo(map);
 
 /*
@@ -38,6 +38,22 @@ function changeLocation1() {
   route1 = L.Routing.control({
     waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
   }).addTo(map);
+  map.setView([lat, long], 150);
+  circle = L.circle([lat, long], {
+    color: "red",
+    fillColor: "#f03",
+    fillOpacity: 0.5,
+    radius: 50, // Adjust the radius as needed
+  }).addTo(map);
+}
+
+function remove1() {
+  map.removeControl(route1);
+  map.removeControl(circle);
+  map.setView([6.073838, 125.115167], 100);
+  marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
+    map
+  );
 }
 
 function changeLocation2() {
@@ -46,6 +62,19 @@ function changeLocation2() {
   route2 = L.Routing.control({
     waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
   }).addTo(map);
+  map.setView([lat, long], 150);
+  circle = L.circle([lat, long], {
+    color: "red",
+    fillColor: "#f03",
+    fillOpacity: 0.5,
+    radius: 50, // Adjust the radius as needed
+  }).addTo(map);
+}
+
+function remove2() {
+  map.removeControl(route2);
+  map.removeControl(circle);
+  map.setView([6.073838, 125.115167], 100);
 }
 
 function changeLocation3() {
@@ -54,33 +83,21 @@ function changeLocation3() {
   route3 = L.Routing.control({
     waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
   }).addTo(map);
+  map.setView([lat, long], 150);
+  circle = L.circle([lat, long], {
+    color: "red",
+    fillColor: "#f03",
+    fillOpacity: 0.5,
+    radius: 50, // Adjust the radius as needed
+  }).addTo(map);
+}
+
+function remove3() {
+  map.removeControl(route3);
+  map.removeControl(circle);
+  map.setView([6.073838, 125.115167], 100);
 }
 
 [...links].map((link, index) => {
   link.addEventListener("click", () => onLinkClick(link, index), false);
 });
-
-var route = L.Routing.control({
-  waypoints: [],
-  units: "imperial",
-  geocoder: L.Control.Geocoder.google(),
-  routeWhileDragging: true,
-}).addTo(map);
-
-L.easyButton(
-  "fa-compass",
-  function () {
-    route.removeFrom(map);
-  },
-
-  "Routing"
-);
-
-function removeRoute() {
-  if (route) {
-    map.removeLayer(route);
-    console.log("Route removed");
-  } else {
-    console.log("No route to remove");
-  }
-}
