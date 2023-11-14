@@ -1,5 +1,5 @@
 var map = L.map("map");
-map.setView([6.0717, 125.1217], 16);
+map.setView([6.073838, 125.115167], 150);
 
 const links = document.querySelectorAll(".navbar > nav > ul > li");
 const cards = document.querySelectorAll(".card");
