@@ -98,69 +98,67 @@
         </script>
       </div>
       <div class="areachart">
-        <canvas id="barangayAreaChart" width="400" height="400"></canvas>
+        <canvas id="barangayAreaChart" width="1100px" height="700"></canvas>
 
         <script>
-          // Assuming you have data for differences between barangays in Gensan
-          var differenceData = {
-            labels: [
-              "Barangay1",
-              "Barangay2",
-              "Barangay3",
-              "Barangay4",
-              "Barangay5",
-            ],
-            datasets: [
-              {
-                data: [30, -10, -5, -5, 15], // Differences between barangays
-                backgroundColor: "rgba(153, 102, 255, 0.2)", // Area fill color
-                borderColor: "rgba(153, 102, 255, 1)", // Line color
-                borderWidth: 2, // Line width
-                fill: "start", // Fill area from the start of the line
-              },
-            ],
-          };
+          // Mock data representing fire outbreak cases in multiple barangays
+          var barangayLabels = ["January", "February", "March", "April", "May"];
+          var barangayData = [
+            {
+              name: "Barangay 1",
+              data: [10, 15, 8, 20, 12],
+              color: "#FF6384",
+            },
+            {
+              name: "Barangay 2",
+              data: [8, 12, 15, 10, 18],
+              color: "#36A2EB",
+            },
+            {
+              name: "Barangay 3",
+              data: [5, 10, 12, 8, 14],
+              color: "#FFCE56",
+            },
+            {
+              name: "Barangay 4",
+              data: [6, 9, 13, 14, 20],
+              color: "#4CAF50",
+            },
+            {
+              name: "Barangay 5",
+              data: [7, 6, 2, 18, 4],
+              color: "#9966FF",
+            },
+            // Add more barangays as needed
+          ];
 
-          // Get the canvas element
           var ctx = document
             .getElementById("barangayAreaChart")
             .getContext("2d");
 
-          // Create an area chart
-          var myAreaChart = new Chart(ctx, {
+          var multiBarangayAreaChart = new Chart(ctx, {
             type: "line",
-            data: differenceData,
+            data: {
+              labels: barangayLabels,
+              datasets: barangayData.map((barangay) => ({
+                label: barangay.name,
+                data: barangay.data,
+                backgroundColor: barangay.color, // Fill color under the line
+                borderColor: barangay.color, // Line color
+                borderWidth: 7,
+                pointRadius: 5, // Size of the data points
+                pointBackgroundColor: barangay.color, // Color of the data points
+                fill: false, // Fill the area under the line
+              })),
+            },
             options: {
-              aspectRatio: 800 / 500,
-              title: {
-                display: true,
-                text: "Difference Between Barangays in Gensan",
-              },
-              plugins: {
-                datalabels: {
-                  color: "#fff", // Set label text color
-                  font: {
-                    size: 12, // Set label font size
-                  },
-                  formatter: function (value) {
-                    return value; // Display the difference value on hover
-                  },
-                },
-              },
               scales: {
                 x: {
-                  display: true,
-                  title: {
-                    display: true,
-                    text: "Barangays",
-                  },
+                  type: "category",
+                  labels: barangayLabels,
                 },
                 y: {
-                  display: true,
-                  title: {
-                    display: true,
-                    text: "Difference",
-                  },
+                  beginAtZero: true,
                 },
               },
             },
@@ -175,11 +173,36 @@
             <div class="close">Close</div>
           </button>
           <!-- Your popup content goes here -->
-          <h2>Add Report</h2>
-          <p>Diri and mga forms ibutang para sa report</p>
-          <button id="close-popup-btn" onclick="closePopup()">
-            Close Popup
-          </button>
+          <form class="form">
+            <p class="title">Add Report</p>
+            <p class="message">Fill Up the necessary information needed</p>
+            <div class="flex">
+              <label>
+                <input required="" placeholder="" type="text" class="input" />
+                <span>Firstname</span>
+              </label>
+
+              <label>
+                <input required="" placeholder="" type="text" class="input" />
+                <span>Lastname</span>
+              </label>
+            </div>
+
+            <label>
+              <input required="" placeholder="" type="email" class="input" />
+              <span>Email</span>
+            </label>
+
+            <label>
+              <input required="" placeholder="" type="password" class="input" />
+              <span>Password</span>
+            </label>
+            <label>
+              <input required="" placeholder="" type="password" class="input" />
+              <span>Confirm password</span>
+            </label>
+            <button class="submit">Submit</button>
+          </form>
         </div>
       </div>
     </section>

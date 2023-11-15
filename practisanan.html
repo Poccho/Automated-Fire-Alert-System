@@ -1,128 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Created By CodingNepal - www.codingnepalweb.com -->
+<html lang="en" dir="ltr">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
+    <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<<<<<<< HEAD
-    <title>Leaflet Tile Layer Switch</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-      #map {
-        height: 400px;
-=======
-    <title>Pop-out Div</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-      }
-
-      #existing-div {
-        width: 50%;
-        margin: 50px auto;
-        padding: 20px;
-        background: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        position: relative;
-      }
-
-      #overlay {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5); /* semi-transparent black overlay */
-        align-items: center;
-        justify-content: center;
-      }
-
-      #popup {
-        background: #fff;
-        padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        position: relative;
-      }
-
-      #close-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-      }
-
-      #close-popup-btn {
-        margin-top: 10px;
-        cursor: pointer;
->>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="popup.js"></script>
+    <!-- Include chartjs-plugin-datalabels plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
+    />
   </head>
   <body>
-<<<<<<< HEAD
-    <button onclick="switchTileLayer()">Switch Tile Layer</button>
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-      // Create a Leaflet map centered at a specific location
-      var map = L.map("map").setView([51.505, -0.09], 13);
-
-      // Add an initial tile layer (you can replace this with your own tile layer)
-      var initialTileLayer = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution: "© OpenStreetMap contributors",
-        }
-      ).addTo(map);
-
-      // Another tile layer (you can replace this with a different tile layer)
-      var alternateTileLayer = L.tileLayer(
-        "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-        {
-          attribution: "© CartoDB",
-        }
-      );
-
-      // Function to switch between tile layers
-      function switchTileLayer() {
-        if (map.hasLayer(initialTileLayer)) {
-          map.removeLayer(initialTileLayer);
-          map.addLayer(alternateTileLayer);
-        } else {
-          map.removeLayer(alternateTileLayer);
-          map.addLayer(initialTileLayer);
-        }
-=======
-    <div id="existing-div">
-      <!-- Existing content goes here -->
-      <h2>Existing Content</h2>
-      <p>This is the content of the existing div.</p>
-      <button onclick="openPopup()">Open Popup</button>
-    </div>
-
-    <div id="overlay">
-      <div id="popup">
-        <span id="close-btn" onclick="closePopup()">X</span>
-        <!-- Your popup content goes here -->
-        <h2>Popup Content</h2>
-        <p>This is the content of the popup.</p>
-        <button id="close-popup-btn" onclick="closePopup()">Close Popup</button>
+    <nav>
+      <input type="checkbox" id="check" />
+      <label for="check" class="checkbtn">
+        <i class="fas fa-bars"></i>
+      </label>
+      <label class="logo"
+        ><i class="fa-solid fa-house-fire fa-fade fa-xs"></i> AFAS</label
+      >
+      <ul>
+        <li><a href="index.html">Dashboard</a></li>
+        <li><a class="active" href="statistics.html">Statistics</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <section>
+      <div class="buttons">
+        <button class="print">Print</button>
+        <button class="addreport" onclick="openPopup()">Add Record</button>
       </div>
-    </div>
+      <div class="piechart">
+        <canvas id="barangayPieChart"></canvas>
 
-    <script>
-      function openPopup() {
-        document.getElementById("overlay").style.display = "flex";
-      }
+        <script>
+          // Assuming you have data for barangays in Gensan
+          var barangayData = {
+            labels: [
+              "Barangay1",
+              "Barangay2",
+              "Barangay3",
+              "Barangay4",
+              "Barangay5",
+            ],
+            datasets: [
+              {
+                data: [30, 20, 15, 10, 25], // You should replace these values with the actual data
+                backgroundColor: [
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4CAF50",
+                  "#9966FF",
+                ],
+              },
+            ],
+          };
 
-      function closePopup() {
-        document.getElementById("overlay").style.display = "none";
->>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
-      }
-    </script>
+          // Get the canvas element
+          var ctx = document
+            .getElementById("barangayPieChart")
+            .getContext("2d");
+
+          // Create a pie chart
+          var myPieChart = new Chart(ctx, {
+            type: "pie",
+            data: barangayData,
+            options: {
+              title: {
+                display: true,
+                text: "Barangays in Gensan",
+              },
+              plugins: {
+                datalabels: {
+                  color: "#fff", // Set label text color
+                  font: {
+                    size: 12, // Set label font size
+                  },
+                  formatter: function (value, context) {
+                    return context.chart.data.labels[context.dataIndex];
+                  },
+                },
+              },
+              legend: {
+                display: false,
+                position: "top",
+                align: "start",
+              },
+            },
+          });
+        </script>
+      </div>
+      <div class="areachart">
+        <canvas id="barangayAreaChart"></canvas>
+
+        <script>
+          // Mock data representing fire outbreak cases in multiple barangays
+          var barangayLabels = ["January", "February", "March", "April", "May"];
+          var barangayData = [
+            {
+              name: "Barangay 1",
+              data: [10, 15, 8, 20, 12],
+              color: "#FF6384",
+            },
+            {
+              name: "Barangay 2",
+              data: [8, 12, 15, 10, 18],
+              color: "#36A2EB",
+            },
+            {
+              name: "Barangay 3",
+              data: [5, 10, 12, 8, 14],
+              color: "#FFCE56",
+            },
+            {
+              name: "Barangay 4",
+              data: [6, 9, 13, 14, 20],
+              color: "#4CAF50",
+            },
+            {
+              name: "Barangay 5",
+              data: [7, 6, 2, 18, 4],
+              color: "#9966FF",
+            },
+            // Add more barangays as needed
+          ];
+
+          var ctx = document
+            .getElementById("barangayAreaChart")
+            .getContext("2d");
+
+          var multiBarangayAreaChart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: barangayLabels,
+              datasets: barangayData.map((barangay) => ({
+                label: barangay.name,
+                data: barangay.data,
+                backgroundColor: barangay.color, // Fill color under the line
+                borderColor: barangay.color, // Line color
+                borderWidth: 1,
+                pointRadius: 5, // Size of the data points
+                pointBackgroundColor: barangay.color, // Color of the data points
+                fill: false, // Fill the area under the line
+              })),
+            },
+            options: {
+              scales: {
+                x: {
+                  type: "category",
+                  labels: barangayLabels,
+                },
+                y: {
+                  beginAtZero: true,
+                },
+              },
+            },
+          });
+        </script>
+      </div>
+      <div id="overlay">
+        <div id="popup">
+          <button class="button" id="close-btn" onclick="closePopup()">
+            <span class="X"></span>
+            <span class="Y"></span>
+            <div class="close">Close</div>
+          </button>
+          <!-- Your popup content goes here -->
+          <form class="form">
+            <p class="title">Add Report</p>
+            <p class="message">Fill Up the necessary information needed</p>
+            <div class="flex">
+              <label>
+                <input required="" placeholder="" type="text" class="input" />
+                <span>Firstname</span>
+              </label>
+
+              <label>
+                <input required="" placeholder="" type="text" class="input" />
+                <span>Lastname</span>
+              </label>
+            </div>
+
+            <label>
+              <input required="" placeholder="" type="email" class="input" />
+              <span>Email</span>
+            </label>
+
+            <label>
+              <input required="" placeholder="" type="password" class="input" />
+              <span>Password</span>
+            </label>
+            <label>
+              <input required="" placeholder="" type="password" class="input" />
+              <span>Confirm password</span>
+            </label>
+            <button class="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+    </section>
   </body>
 </html>
