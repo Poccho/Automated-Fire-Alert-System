@@ -44,7 +44,7 @@ function changeLocation1() {
   route1 = L.Routing.control({
     waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
   }).addTo(map);
-  map.setView([lat, long], 150);
+  map.setView([lat, long], 20);
   circle = L.circle([lat, long], {
     color: "red",
     fillColor: "#f03",
