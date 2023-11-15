@@ -5,11 +5,7 @@
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="popup.js"></script>
-    <!-- Include chartjs-plugin-datalabels plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <link rel="stylesheet" href="contact.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
@@ -22,187 +18,64 @@
         <i class="fas fa-bars"></i>
       </label>
       <label class="logo"
-        ><i class="fa-solid fa-house-fire fa-fade fa-xs"></i> AFAS</label
+        ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
       >
       <ul>
         <li><a href="index.html">Dashboard</a></li>
-        <li><a class="active" href="statistics.html">Statistics</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="statistics.html">Statistics</a></li>
+        <li><a class="active" href="contact.html">Contact</a></li>
         <li><a href="about.html">About</a></li>
       </ul>
     </nav>
     <section>
-      <div class="buttons">
-        <button class="print">Print</button>
-        <button class="addreport" onclick="openPopup()">Add Record</button>
-      </div>
-      <div class="piechart">
-        <canvas id="barangayPieChart"></canvas>
-
-        <script>
-          // Assuming you have data for barangays in Gensan
-          var barangayData = {
-            labels: [
-              "Barangay1",
-              "Barangay2",
-              "Barangay3",
-              "Barangay4",
-              "Barangay5",
-            ],
-            datasets: [
-              {
-                data: [30, 20, 15, 10, 25], // You should replace these values with the actual data
-                backgroundColor: [
-                  "#FF6384",
-                  "#36A2EB",
-                  "#FFCE56",
-                  "#4CAF50",
-                  "#9966FF",
-                ],
-              },
-            ],
-          };
-
-          // Get the canvas element
-          var ctx = document
-            .getElementById("barangayPieChart")
-            .getContext("2d");
-
-          // Create a pie chart
-          var myPieChart = new Chart(ctx, {
-            type: "pie",
-            data: barangayData,
-            options: {
-              title: {
-                display: true,
-                text: "Barangays in Gensan",
-              },
-              plugins: {
-                datalabels: {
-                  color: "#fff", // Set label text color
-                  font: {
-                    size: 12, // Set label font size
-                  },
-                  formatter: function (value, context) {
-                    return context.chart.data.labels[context.dataIndex];
-                  },
-                },
-              },
-              legend: {
-                display: false,
-                position: "top",
-                align: "start",
-              },
-            },
-          });
-        </script>
-      </div>
-      <div class="areachart">
-        <canvas id="barangayAreaChart"></canvas>
-
-        <script>
-          // Mock data representing fire outbreak cases in multiple barangays
-          var barangayLabels = ["January", "February", "March", "April", "May"];
-          var barangayData = [
-            {
-              name: "Barangay 1",
-              data: [10, 15, 8, 20, 12],
-              color: "#FF6384",
-            },
-            {
-              name: "Barangay 2",
-              data: [8, 12, 15, 10, 18],
-              color: "#36A2EB",
-            },
-            {
-              name: "Barangay 3",
-              data: [5, 10, 12, 8, 14],
-              color: "#FFCE56",
-            },
-            {
-              name: "Barangay 4",
-              data: [6, 9, 13, 14, 20],
-              color: "#4CAF50",
-            },
-            {
-              name: "Barangay 5",
-              data: [7, 6, 2, 18, 4],
-              color: "#9966FF",
-            },
-            // Add more barangays as needed
-          ];
-
-          var ctx = document
-            .getElementById("barangayAreaChart")
-            .getContext("2d");
-
-          var multiBarangayAreaChart = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: barangayLabels,
-              datasets: barangayData.map((barangay) => ({
-                label: barangay.name,
-                data: barangay.data,
-                backgroundColor: barangay.color, // Fill color under the line
-                borderColor: barangay.color, // Line color
-                borderWidth: 1,
-                pointRadius: 5, // Size of the data points
-                pointBackgroundColor: barangay.color, // Color of the data points
-                fill: false, // Fill the area under the line
-              })),
-            },
-            options: {
-              scales: {
-                x: {
-                  type: "category",
-                  labels: barangayLabels,
-                },
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            },
-          });
-        </script>
-      </div>
-      <div id="overlay">
-        <div id="popup">
-          <button class="button" id="close-btn" onclick="closePopup()">
-            <span class="X"></span>
-            <span class="Y"></span>
-            <div class="close">Close</div>
-          </button>
-          <!-- Your popup content goes here -->
-          <form class="form">
-            <p class="title">Add Report</p>
-            <p class="message">Fill Up the necessary information needed</p>
-            <div class="flex">
-              <label>
-                <input required="" placeholder="" type="text" class="input" />
-                <span>Firstname</span>
-              </label>
-
-              <label>
-                <input required="" placeholder="" type="text" class="input" />
-                <span>Lastname</span>
-              </label>
+      <div class="container">
+        <div class="content">
+          <div class="left-side">
+            <div class="address details">
+              <i class="fas fa-map-marker-alt"></i>
+              <div class="topic">Address</div>
+              <div class="text-one">IT/Physics Dept</div>
+              <div class="text-two">MSU, General Santos City</div>
             </div>
-
-            <label>
-              <input required="" placeholder="" type="email" class="input" />
-              <span>Email</span>
-            </label>
-
-            <label>
-              <input required="" placeholder="" type="password" class="input" />
-              <span>Password</span>
-            </label>
-            <label>
-              <input required="" placeholder="" type="password" class="input" />
-              <span>Confirm password</span>
-            </label>
-            <button class="submit">Submit</button>
-          </form>
+            <div class="phone details">
+              <i class="fas fa-phone-alt"></i>
+              <div class="topic">Phone</div>
+              <div class="text-one">+6394 9541 2538</div>
+              <div class="text-two">+6399 1439 5168</div>
+            </div>
+            <div class="email details">
+              <i class="fas fa-envelope"></i>
+              <div class="topic">Email</div>
+              <div class="text-one">rogeranthony.bairoy@msugensan.edu.ph</div>
+              <div class="text-two">sample@gmail.com</div>
+            </div>
+          </div>
+          <div class="right-side">
+            <div class="topic-text">Send us a message</div>
+            <p>
+              If you have any work from me or any types of quries related to my
+              tutorial, you can send me message from here. It's my pleasure to
+              help you.
+            </p>
+            <form action="#">
+              <div class="input-box">
+                <input type="text" placeholder="Enter your name" />
+              </div>
+              <div class="input-box">
+                <input type="text" placeholder="Enter your email" />
+              </div>
+              <div class="input-box message-box">
+                <textarea
+                  id="multiline-input"
+                  rows="4"
+                  placeholder="Type your message"
+                ></textarea>
+              </div>
+              <div class="button">
+                <input type="button" value="Send Now" />
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>
