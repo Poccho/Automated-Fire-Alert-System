@@ -1,26 +1,32 @@
-var map = L.map("map");
-map.setView([6.073838, 125.115167], 150);
-
-const links = document.querySelectorAll(".navbar > nav > ul > li");
-const cards = document.querySelectorAll(".card");
-
 //images for custom icons
 const fireIcon = L.icon({
   iconUrl: "fire.png",
   iconSize: [60, 60],
 });
 const fireDepartment = L.icon({
-  iconUrl: "firedepartment.png",
-  iconSize: [40, 50],
+  iconUrl: "fire-station.png",
+  iconSize: [50, 50],
 });
 
-// Add OpenStreetMap tile layer
+// SETS THE STARTING VIEW WHEN THE MAP LOADS
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap contributors",
-}).addTo(map);
+var map = L.map("map");
+map.setView([6.073838, 125.115167], 150);
 
-/*
+var marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
+  map
+);
+
+// Add satelite tile layer
+
+L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution: "© OpenStreetMap contributors",
+  }
+).addTo(map);
+
+/*    SAMPLE MARKERS
 var marker = L.marker([6.0694, 125.1262], { icon: fireIcon }).addTo(map);
 
 var marker = L.marker([6.07449, 125.1146], { icon: fireIcon }).addTo(map);
