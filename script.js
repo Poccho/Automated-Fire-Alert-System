@@ -19,6 +19,37 @@ var marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
 
 // Add satelite tile layer
 
+var tilelayer1 = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }
+);
+var tilelayer2 = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  {
+    attribution: "© OpenStreetMap contributors",
+  }
+);
+
+tilelayer1.addTo(map);
+
+// TRIAL FUNCTION FOR SWITCHING TILE MAPS
+
+document
+  .getElementById("switch-layers")
+  .addEventHandler("click", function (ev) {
+    if (map.hasLayer(tilelayer1)) {
+      map.addLayer(tilelayer2);
+      map.removeLayer(tilelayer1);
+    } else {
+      map.addLayer(tilelayer1);
+      map.removeLayer(tilelayer2);
+    }
+  });
+
+/*
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   {

@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="popup.js"></script>
     <!-- Include chartjs-plugin-datalabels plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link
@@ -26,7 +27,6 @@
       <ul>
         <li><a href="index.html">Dashboard</a></li>
         <li><a class="active" href="statistics.html">Statistics</a></li>
-        <li><a href="report.html">Report</a></li>
         <li><a href="contact.html">Contact</a></li>
         <li><a href="about.html">About</a></li>
       </ul>
@@ -34,7 +34,7 @@
     <section>
       <div class="buttons">
         <button class="print">Print</button>
-        <button class="addreport">Add Record</button>
+        <button class="addreport" onclick="openPopup()">Add Record</button>
       </div>
       <div class="piechart">
         <canvas id="barangayPieChart"></canvas>
@@ -166,6 +166,17 @@
             },
           });
         </script>
+      </div>
+      <div id="overlay">
+        <div id="popup">
+          <span id="close-btn" onclick="closePopup()">X</span>
+          <!-- Your popup content goes here -->
+          <h2>Add Report</h2>
+          <p>Diri and mga forms ibutang para sa report</p>
+          <button id="close-popup-btn" onclick="closePopup()">
+            Close Popup
+          </button>
+        </div>
       </div>
     </section>
   </body>
