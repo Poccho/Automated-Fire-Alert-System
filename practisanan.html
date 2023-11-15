@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<<<<<<< HEAD
+    <title>Leaflet Tile Layer Switch</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      #map {
+        height: 400px;
+=======
     <title>Pop-out Div</title>
     <style>
       body {
@@ -50,10 +57,46 @@
       #close-popup-btn {
         margin-top: 10px;
         cursor: pointer;
+>>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
       }
     </style>
   </head>
   <body>
+<<<<<<< HEAD
+    <button onclick="switchTileLayer()">Switch Tile Layer</button>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      // Create a Leaflet map centered at a specific location
+      var map = L.map("map").setView([51.505, -0.09], 13);
+
+      // Add an initial tile layer (you can replace this with your own tile layer)
+      var initialTileLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution: "© OpenStreetMap contributors",
+        }
+      ).addTo(map);
+
+      // Another tile layer (you can replace this with a different tile layer)
+      var alternateTileLayer = L.tileLayer(
+        "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+        {
+          attribution: "© CartoDB",
+        }
+      );
+
+      // Function to switch between tile layers
+      function switchTileLayer() {
+        if (map.hasLayer(initialTileLayer)) {
+          map.removeLayer(initialTileLayer);
+          map.addLayer(alternateTileLayer);
+        } else {
+          map.removeLayer(alternateTileLayer);
+          map.addLayer(initialTileLayer);
+        }
+=======
     <div id="existing-div">
       <!-- Existing content goes here -->
       <h2>Existing Content</h2>
@@ -78,6 +121,7 @@
 
       function closePopup() {
         document.getElementById("overlay").style.display = "none";
+>>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
       }
     </script>
   </body>

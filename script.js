@@ -19,6 +19,17 @@ var marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
 
 // Add satelite tile layer
 
+<<<<<<< HEAD
+var initialTileLayer = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    attribution: "© OpenStreetMap contributors",
+  }
+).addTo(map);
+
+// Another tile layer (you can replace this with a different tile layer)
+var alternateTileLayer = L.tileLayer(
+=======
 var tilelayer1 = L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
@@ -27,12 +38,25 @@ var tilelayer1 = L.tileLayer(
   }
 );
 var tilelayer2 = L.tileLayer(
+>>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   {
     attribution: "© OpenStreetMap contributors",
   }
 );
 
+<<<<<<< HEAD
+// Function to switch between tile layers
+function switchTileLayer() {
+  if (map.hasLayer(initialTileLayer)) {
+    map.removeLayer(initialTileLayer);
+    map.addLayer(alternateTileLayer);
+  } else {
+    map.removeLayer(alternateTileLayer);
+    map.addLayer(initialTileLayer);
+  }
+}
+=======
 tilelayer1.addTo(map);
 
 // TRIAL FUNCTION FOR SWITCHING TILE MAPS
@@ -49,6 +73,7 @@ document
     }
   });
 
+>>>>>>> 99eeac4f9d46dba7d55cb057c7da5e228d55bc13
 /*
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
