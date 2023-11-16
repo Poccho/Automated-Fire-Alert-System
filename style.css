@@ -48,7 +48,8 @@ nav ul li a {
 }
 a.active,
 a:hover {
-  background: #400000;
+  color: #ff416c;
+  background: white;
   transition: 0.5s;
 }
 .checkbtn {
@@ -115,7 +116,7 @@ a:hover {
 }
 
 .title-alarm {
-  background-color: red;
+  background-color: #ff416c;
   color: white;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
