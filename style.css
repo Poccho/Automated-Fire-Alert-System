@@ -14,7 +14,12 @@ body {
   font-family: montserrat;
 }
 nav {
-  background: #bf0000;
+  background: #ff416c;
+  background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
+  background: linear-gradient(to right, #ff4b2b, #ff416c);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
   height: 80px;
   width: 100%;
 }

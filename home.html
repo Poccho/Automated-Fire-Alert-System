@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>AFAS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script src="script.js" defer></script>
+    <script src="https://unpkg.com/tween.js@18.6.4"></script>
+  </head>
+  <body>
+    <nav>
+      <input type="checkbox" id="check" />
+      <label for="check" class="checkbtn">
+        <i class="fas fa-bars"></i>
+      </label>
+      <label class="logo"
+        ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
+      >
+      <ul>
+        <li><a class="active" href="home.html">Dashboard</a></li>
+        <li><a href="statistics.html">Statistics</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+    <section>
+      <div class="content">
+        <div id="map"></div>
+        <div class="alarms">
+          <div class="title-alarm">
+        </label
+            ><i class="fa-regular fa-bell fa-shake fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-shake fa-xs"></i>
+          </div>
+          <table>
+            <tr>
+              <th>Coordinates</th>
+              <th>Actions</th>
+            </tr>
+            <tr>
+              <td>6.0694, 125.1262</td>
+              <td>
+                <button id="pin" onclick="changeLocation1()">Pin</button>
+                <button id="delete" onclick="remove1()">Delete</button>
+              </td>
+            </tr>
+            <tr>
+              <td>6.07449, 125.1146</td>
+              <td>
+                <button id="pin" onclick="changeLocation2()">Pin</button>
+                <button id="delete" onclick="remove2()">Delete</button>
+              </td>
+            </tr>
+            <tr>
+              <td>6.0678, 125.1195</td>
+              <td>
+                <button id="pin" onclick="changeLocation3()">Pin</button>
+                <button id="delete" onclick="remove3()">Delete</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="btn-div"><button id="switch-layers" onclick="switchTileLayer()">Switch Map Layers</button></div>
+      </div>
+    </section>
+  </body>
+</html>

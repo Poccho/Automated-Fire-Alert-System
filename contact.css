@@ -15,7 +15,12 @@ body {
 }
 
 nav {
-  background: #bf0000;
+  background: #ff416c;
+  background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
+  background: linear-gradient(to right, #ff4b2b, #ff416c);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
   height: 80px;
   width: 100%;
 }
@@ -51,7 +56,7 @@ nav ul li a {
 }
 a.active,
 a:hover {
-  background: #400000;
+  background: #eed7c1;
   transition: 0.5s;
 }
 .checkbtn {
