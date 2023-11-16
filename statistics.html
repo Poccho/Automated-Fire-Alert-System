@@ -167,11 +167,6 @@
       </div>
       <div id="overlay">
         <div id="popup">
-          <button class="button" id="close-btn" onclick="closePopup()">
-            <span class="X"></span>
-            <span class="Y"></span>
-            <div class="close">Close</div>
-          </button>
           <!-- Your popup content goes here -->
           <form class="form">
             <p class="title">Add Report</p>
@@ -206,6 +201,8 @@
               <input required="" placeholder="" type="text" class="input" />
               <span>Extra Details</span>
             </label>
+
+            <button class="cancel" onclick="closePopup()">Cancel</button>
             <button class="submit">Submit</button>
           </form>
         </div>
