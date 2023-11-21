@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
@@ -23,7 +23,7 @@
     />
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-    <script src="script.js" defer></script>
+    <script src="./js/script.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   </head>
   <body>
@@ -36,10 +36,10 @@
         ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
       >
       <ul>
-        <li><a class="active" href="home.html">Dashboard</a></li>
-        <li><a href="statistics.html">Statistics</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="about.html">About</a></li>
+        <li><a class="active" href="home.php">Dashboard</a></li>
+        <li><a href="statistics.php">Statistics</a></li>
+        <li><a href="contact.php">Contact</a></li>
+        <li><a href="about.php">About</a></li>
       </ul>
     </nav>
     <section>
@@ -51,7 +51,7 @@
             ><i class="fa-regular fa-bell fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-xs"></i>
           </div>
           <audio id="notificationSound">
-    <source src="notification.mp3" type="audio/mp3">
+    <source src="./misc/notification.mp3" type="audio/mp3">
     Your browser does not support the audio element.
 </audio>
 

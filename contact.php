@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<!-- Created By CodingNepal - www.codingnepalweb.com -->
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="contact.css" />
+    <link rel="stylesheet" href="./css/contact.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
@@ -21,10 +20,10 @@
         ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
       >
       <ul>
-        <li><a href="index.html">Dashboard</a></li>
-        <li><a href="statistics.html">Statistics</a></li>
-        <li><a class="active" href="contact.html">Contact</a></li>
-        <li><a href="about.html">About</a></li>
+        <li><a href="home.php">Dashboard</a></li>
+        <li><a href="statistics.php">Statistics</a></li>
+        <li><a class="active" href="contact.php">Contact</a></li>
+        <li><a href="about.php">About</a></li>
       </ul>
     </nav>
     <section>
@@ -53,16 +52,19 @@
           <div class="right-side">
             <div class="topic-text">Send us a message</div>
             <p>
-              If you have any work from me or any types of quries related to my
-              tutorial, you can send me message from here. It's my pleasure to
-              help you.
+              If you have any questions or inquiries about us or our system,
+              please feel free to contact us.
             </p>
             <form action="#">
               <div class="input-box">
-                <input type="text" placeholder="Enter your name" />
+                <input required="" type="text" placeholder="Enter your name" />
               </div>
               <div class="input-box">
-                <input type="text" placeholder="Enter your email" />
+                <input
+                  required=""
+                  type="email"
+                  placeholder="Enter your email"
+                />
               </div>
               <div class="input-box message-box">
                 <textarea

@@ -92,7 +92,7 @@ function changeLocation1() {
     color: "red",
     fillColor: "#f03",
     fillOpacity: 0.5,
-    radius: 50, // Adjust the radius as needed
+    radius: 50,
   }).addTo(map);
 }
 
@@ -116,7 +116,7 @@ function changeLocation2() {
     color: "red",
     fillColor: "#f03",
     fillOpacity: 0.5,
-    radius: 50, // Adjust the radius as needed
+    radius: 50,
   }).addTo(map);
 }
 
@@ -137,7 +137,7 @@ function changeLocation3() {
     color: "red",
     fillColor: "#f03",
     fillOpacity: 0.5,
-    radius: 50, // Adjust the radius as needed
+    radius: 50,
   }).addTo(map);
 }
 

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
@@ -21,10 +21,10 @@
         ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
       >
       <ul>
-        <li><a href="home.html">Dashboard</a></li>
-        <li><a href="statistics.html">Statistics</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a class="active" href="about.html">About</a></li>
+        <li><a href="home.php">Dashboard</a></li>
+        <li><a href="statistics.php">Statistics</a></li>
+        <li><a href="contact.php">Contact</a></li>
+        <li><a class="active" href="about.php">About</a></li>
       </ul>
     </nav>
     <section></section>

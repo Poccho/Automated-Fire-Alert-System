@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<!-- Created By CodingNepal - www.codingnepalweb.com -->
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="popup.js"></script>
-    <!-- Include chartjs-plugin-datalabels plugin -->
+    <script src="./js/popup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link
       rel="stylesheet"
@@ -25,10 +23,10 @@
         ><i class="fa-solid fa-house-fire fa-fade fa-xs"></i> AFAS</label
       >
       <ul>
-        <li><a href="home.html">Dashboard</a></li>
-        <li><a class="active" href="statistics.html">Statistics</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="about.html">About</a></li>
+        <li><a href="home.php">Dashboard</a></li>
+        <li><a class="active" href="statistics.php">Statistics</a></li>
+        <li><a href="contact.php">Contact</a></li>
+        <li><a href="about.php">About</a></li>
       </ul>
     </nav>
     <section>
