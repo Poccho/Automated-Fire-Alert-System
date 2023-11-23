@@ -163,7 +163,7 @@ i[class="fa-solid fa-repeat fa-beat fa-xs"] {
 }
 
 .btn-div {
-  float: right;
+  float: left;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   margin-right: 25px;
@@ -240,7 +240,7 @@ td {
 /* CSS SA DELETE BUTTON*/
 
 #delete {
-  background-color: #444141;
+  background-color: #ff416c;
   border-radius: 4px;
   color: #fff;
   cursor: pointer;
@@ -266,7 +266,7 @@ td {
 /* CSS SA PIN BUTTON*/
 
 #pin {
-  background-color: #444141;
+  background-color: #ff416c;
   border-radius: 4px;
   color: #fff;
   cursor: pointer;
@@ -304,7 +304,7 @@ td {
 .areachart {
   height: 500px;
   width: 800px;
-  float: right;
+  float: left;
   padding-bottom: 20px;
   margin-top: 10px;
   background-color: white;
@@ -737,5 +737,19 @@ td {
     opacity: 0;
   }
 }
+
+.popup {
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.success-slide-out {
+  transform: translateY(-100%);
+}
+
+.error-slide-out {
+  transform: translateY(100%);
+}
+
+/* CSS FOR DROPDOWN CHOICES*/
 
 /* CONTACT US CSS FILE*/

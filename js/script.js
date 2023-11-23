@@ -4,7 +4,7 @@ const fireIcon = L.icon({
   iconSize: [60, 60],
 });
 const fireDepartment = L.icon({
-  iconUrl: "fire-station.png",
+  iconUrl: "./misc/fire-station.png",
   iconSize: [50, 50],
 });
 
@@ -45,8 +45,6 @@ function switchTileLayer() {
   }
 }
 
-tilelayer1.addTo(map);
-
 // TRIAL FUNCTION FOR SWITCHING TILE MAPS
 
 document
@@ -61,34 +59,15 @@ document
     }
   });
 
-/*
-L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-  {
-    attribution: "© OpenStreetMap contributors",
-  }
-).addTo(map);
+// FUNCTIUON FOR PINNING LOCATIONS
 
-/*    SAMPLE MARKERS
-var marker = L.marker([6.0694, 125.1262], { icon: fireIcon }).addTo(map);
-
-var marker = L.marker([6.07449, 125.1146], { icon: fireIcon }).addTo(map);
-
-var marker = L.marker([6.0678, 125.1195], { icon: fireIcon }).addTo(map);
-
-var marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
-  map
-);
-*/
-
-function changeLocation1() {
-  lat = 6.0678;
-  long = 125.1195;
+function pinLocation() {
+  var coordinates = "<?php echo $coordinates; ?>";
   route1 = L.Routing.control({
-    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
+    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(coordinates)],
   }).addTo(map);
-  map.setView([lat, long], 20);
-  circle = L.circle([lat, long], {
+  map.setView([coordinates], 20);
+  circle = L.circle([coordinates], {
     color: "red",
     fillColor: "#f03",
     fillOpacity: 0.5,
@@ -96,55 +75,13 @@ function changeLocation1() {
   }).addTo(map);
 }
 
-function remove1() {
+function remove() {
   map.removeControl(route1);
   map.removeControl(circle);
   map.setView([6.073838, 125.115167], 100);
   marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
     map
   );
-}
-
-function changeLocation2() {
-  lat = 6.07449;
-  long = 125.1146;
-  route2 = L.Routing.control({
-    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
-  }).addTo(map);
-  map.setView([lat, long], 150);
-  circle = L.circle([lat, long], {
-    color: "red",
-    fillColor: "#f03",
-    fillOpacity: 0.5,
-    radius: 50,
-  }).addTo(map);
-}
-
-function remove2() {
-  map.removeControl(route2);
-  map.removeControl(circle);
-  map.setView([6.073838, 125.115167], 100);
-}
-
-function changeLocation3() {
-  lat = 6.0694;
-  long = 125.1262;
-  route3 = L.Routing.control({
-    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(lat, long)],
-  }).addTo(map);
-  map.setView([lat, long], 150);
-  circle = L.circle([lat, long], {
-    color: "red",
-    fillColor: "#f03",
-    fillOpacity: 0.5,
-    radius: 50,
-  }).addTo(map);
-}
-
-function remove3() {
-  map.removeControl(route3);
-  map.removeControl(circle);
-  map.setView([6.073838, 125.115167], 100);
 }
 
 [...links].map((link, index) => {

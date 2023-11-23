@@ -1,4 +1,11 @@
-<!DOCTYPE html>
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+?>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -24,6 +31,7 @@
         <li><a href="statistics.php">Statistics</a></li>
         <li><a class="active" href="contact.php">Contact</a></li>
         <li><a href="about.php">About</a></li>
+        <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>
     <section>

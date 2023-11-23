@@ -1,10 +1,20 @@
-<!DOCTYPE html>
+<?php
+// Start the session
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // If not logged in, redirect to the login page
+    header("Location: index.php");
+    exit();
+}
+?>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <title>AFAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
@@ -40,6 +50,7 @@
         <li><a href="statistics.php">Statistics</a></li>
         <li><a href="contact.php">Contact</a></li>
         <li><a href="about.php">About</a></li>
+        <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>
     <section>
@@ -47,23 +58,18 @@
         <div id="map"></div>
         <div class="alarms">
           <div class="title-alarm">
-        </label
-            ><i class="fa-regular fa-bell fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-xs"></i>
+          <i class="fa-regular fa-bell fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-xs"></i>
           </div>
-          <audio id="notificationSound">
-    <source src="./misc/notification.mp3" type="audio/mp3">
-    Your browser does not support the audio element.
-</audio>
 
                  <table id="dynamic-table">
                   <tbody>
-</tbody>
-    </table>
+                  </tbody>
+                 </table>
         </div>
         <div class="btn-div"><button id="switch-layers" onclick="switchTileLayer()">Switch Map Layers</button></div>
       </div>
     </section>
-<script>
+    <script>
         // JavaScript/jQuery code for AJAX
         $(document).ready(function () {
             // Function to refresh the table content

@@ -1,4 +1,74 @@
-<!DOCTYPE html>
+<?php
+include "connection.php";
+
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+// Function to sanitize and validate input
+function sanitizeInput($input) {
+    $input = trim($input);
+    $input = stripslashes($input);
+    $input = htmlspecialchars($input);
+    return $input;
+}
+
+// Check if the form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get user input
+    $location = sanitizeInput($_POST['location']);
+    $barangay = sanitizeInput($_POST['barangay']);
+    $time = sanitizeInput($_POST['time']);
+    $possibleCause = sanitizeInput($_POST['choices']);
+
+    // Insert the data into the database
+    $stmt = $conn->prepare("INSERT INTO history (coordinates, barangay, time, cause) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $location, $barangay, $time, $possibleCause);
+
+
+    if ($stmt->execute()) {
+        // Style the success message as a sliding-out pop-up with JavaScript
+        echo '<div id="success-popup" class="popup success-slide-out" style="background-color: #4CAF50; color: #fff; text-align: center; border-radius: 5px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 320px; height: 50px; line-height: 50px;">';
+        echo "Report uploaded successfully!";
+        echo '</div>';
+        echo '<script>
+                setTimeout(function() {
+                    var successPopup = document.getElementById("success-popup");
+                    successPopup.classList.remove("success-slide-out");
+                    successPopup.style.opacity = "0";
+                    setTimeout(function() {
+                        successPopup.style.display = "none";
+                    }, 500); // Adjust the delay based on your animation duration
+                }, 3000);
+              </script>';
+    } else {
+        // Style the error message as a sliding-out pop-up with JavaScript
+        echo '<div id="error-popup" class="popup error-slide-out" style="background-color: #f44336; color: #fff; text-align: center; border-radius: 5px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 320px; height: 50px; line-height: 50px;">';
+        echo "Error uploading report: " . $stmt->error;
+        echo '</div>';
+        echo '<script>
+                setTimeout(function() {
+                    var errorPopup = document.getElementById("error-popup");
+                    errorPopup.classList.remove("error-slide-out");
+                    errorPopup.style.opacity = "0";
+                    setTimeout(function() {
+                        errorPopup.style.display = "none";
+                    }, 500); // Adjust the delay based on your animation duration
+                }, 3000);
+              </script>';
+    }
+
+    $stmt->close();
+}
+
+// Close the database connection
+$conn->close();
+?>
+
+
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -12,6 +82,9 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
   </head>
   <body>
     <nav>
@@ -27,11 +100,12 @@
         <li><a class="active" href="statistics.php">Statistics</a></li>
         <li><a href="contact.php">Contact</a></li>
         <li><a href="about.php">About</a></li>
+        <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>
     <section>
       <div class="buttons">
-        <button class="print">Print</button>
+        <button class="print" onclick="downloadPDF()">Print</button>
         <button class="addreport" onclick="openPopup()">Add Record</button>
       </div>
       <div class="piechart">
@@ -41,15 +115,15 @@
           // Assuming you have data for barangays in Gensan
           var barangayData = {
             labels: [
-              "Barangay1",
-              "Barangay2",
-              "Barangay3",
-              "Barangay4",
-              "Barangay5",
+              "Electrical Issue",
+              "Natural Causes",
+              "Arson",
+              "Human Error",
+              "Equipment Malfunction",
             ],
             datasets: [
               {
-                data: [30, 20, 15, 10, 25], // You should replace these values with the actual data
+                data: [65, 63, 49, 62, 37], // You should replace these values with the actual data
                 backgroundColor: [
                   "#FF6384",
                   "#36A2EB",
@@ -103,27 +177,27 @@
           var barangayLabels = ["January", "February", "March", "April", "May"];
           var barangayData = [
             {
-              name: "Barangay 1",
+              name: "Electrical Issue",
               data: [10, 15, 8, 20, 12],
               color: "#FF6384",
             },
             {
-              name: "Barangay 2",
+              name: "Natural Causes",
               data: [8, 12, 15, 10, 18],
               color: "#36A2EB",
             },
             {
-              name: "Barangay 3",
+              name: "Arson",
               data: [5, 10, 12, 8, 14],
               color: "#FFCE56",
             },
             {
-              name: "Barangay 4",
+              name: "Human Error",
               data: [6, 9, 13, 14, 20],
               color: "#4CAF50",
             },
             {
-              name: "Barangay 5",
+              name: "Equipment Malfunction",
               data: [7, 6, 2, 18, 4],
               color: "#9966FF",
             },
@@ -163,46 +237,44 @@
           });
         </script>
       </div>
+      
       <div id="overlay">
         <div id="popup">
-          <!-- Your popup content goes here -->
-          <form class="form">
+          <form class="form" method="POST">
             <p class="title">Add Report</p>
-            <p class="message">Fill Up the necessary information needed</p>
-            <div class="flex">
-              <label>
-                <input required="" placeholder="" type="text" class="input" />
-                <span>Time Started</span>
-              </label>
-
-              <label>
-                <input required="" placeholder="" type="text" class="input" />
-                <span>Time Ended</span>
-              </label>
-            </div>
+            <p class="message">Fill Up the necessary information needed</p>           
 
             <label>
-              <input
-                required=""
-                placeholder=""
-                type="datetime-local"
-                class="input"
-              />
-              <span></span>
+              <input id="location" name="location" placeholder="" type="text" class="input" />
+              <span>Location</span>
+            </label>
+            
+            <label>
+              <input id="barangay" name="barangay" placeholder="" type="text" class="input"/>
+              <span>Barangay</span>
             </label>
 
             <label>
-              <input required="" placeholder="" type="text" class="input" />
-              <span>Address</span>
+              <input id="time" name="time" placeholder="" type="time" class="input" />
+              <span>Time</span>
             </label>
-            <label>
-              <input required="" placeholder="" type="text" class="input" />
-              <span>Extra Details</span>
-            </label>
-
-            <button class="cancel" onclick="closePopup()">Cancel</button>
-            <button class="submit">Submit</button>
+            <label for="choices">Possible Cause:</label>
+              <div class="custom-dropdown">
+                <select id="choices" name="choices" class="input">
+                    <option value="Electrical Issue">Electrical Issue</option>
+                    <option value="Natural Causes">Natural Causes</option>
+                    <option value="Arson">Arson</option>
+                    <option value="Human Error">Human Error</option>
+                    <option value="Equipment Malfunction">Equipment Malfunction</option>
+                </select>
+                <div class="dropdown-list"></div>
+              </div>
+            <button id="sumbit" class="submit">Submit</button>
           </form>
+          <form class="form">
+          <button class="cancel" onclick="closePopup()">Cancel</button>
+          </form>
+            
         </div>
       </div>
     </section>
