@@ -92,6 +92,6 @@ if (!isset($_SESSION['user_id'])) {
                     link.addEventListener("click", () => onLinkClick(link, index), false);
                     });
 
-            </script>';
+            </script>
 </body>
 </html>

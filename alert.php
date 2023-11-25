@@ -1,24 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alert Form</title>
-</head>
-<body>
-    <h2>Enter Coordinates</h2>
-    <form method="post" action="">
-        <label for="coordinates">Coordinates:</label>
-        <input type="text" name="coordinates" required>
-
-        <button type="submit" name="submit">Submit</button>
-    </form>
 
     <?php
     // Check if the form is submitted
-    if(isset($_POST['submit'])) {
+    if(isset($_GET['coordinates'])) {
         // Get user input
-        $coordinates = $_POST['coordinates'];
+        $coordinates = $_GET['coordinates'];
 
         // Database connection details
         $host = 'localhost';
@@ -42,5 +27,3 @@
         echo '<p>Coordinates inserted successfully!</p>';
     }
     ?>
-</body>
-</html>
