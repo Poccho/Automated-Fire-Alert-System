@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt = $conn->prepare("INSERT INTO history (coordinates, barangay, time, cause) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $location, $barangay, $time, $possibleCause);
 
-
     if ($stmt->execute()) {
         // Style the success message as a sliding-out pop-up with JavaScript
         echo '<div id="success-popup" class="popup success-slide-out" style="background-color: #4CAF50; color: #fff; text-align: center; border-radius: 5px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 320px; height: 50px; line-height: 50px;">';
@@ -64,10 +63,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->close();
 }
 
+$sql = "SELECT cause, COUNT(*) as count FROM history GROUP BY cause";
+$result = $conn->query($sql);
+
+// Initialize arrays to store labels and data for the pie chart
+$labels = [];
+$data = [];
+
+// Process the result set
+while ($row = $result->fetch_assoc()) {
+    $labels[] = $row['cause'];
+    $data[] = $row['count'];
+}
+
+$sql = "SELECT cause, MONTH(time) AS month, COUNT(*) AS count FROM history WHERE YEAR(time) = YEAR(CURRENT_DATE()) GROUP BY cause, MONTH(time)";
+$result = $conn->query($sql);
+
+// Initialize arrays to store labels, data, and colors for the area chart
+$barangayLabels = [];
+$barangayData = [];
+
+// Define colors to match with the pie chart
+$colors = [
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4CAF50",
+    "#9966FF",
+];
+
+$colorIndex = 0;
+
+// Process the result set
+while ($row = $result->fetch_assoc()) {
+    $barangayLabels[$row['month']] = date('F', mktime(0, 0, 0, $row['month'], 1));
+
+    $color = $colors[$colorIndex];
+    $barangayData[$row['cause']][] = [
+        'count' => $row['count'],
+        'color' => $color,
+    ];
+
+    // Move to the next color or reset to the first one
+    $colorIndex = ($colorIndex + 1) % count($colors);
+}
+
+// Output fetched data for debugging
 // Close the database connection
 $conn->close();
 ?>
-
 
 <html lang="en" dir="ltr">
   <head>
@@ -77,13 +121,19 @@ $conn->close();
     <link rel="stylesheet" href="./css/style.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/popup.js"></script>
+    <script src="./js/download.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <!-- Add these script tags in the head of your HTML file -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+
+
 
   </head>
   <body>
@@ -105,136 +155,124 @@ $conn->close();
     </nav>
     <section>
       <div class="buttons">
-        <button class="print" onclick="downloadPDF()">Print</button>
+        <button id="exportButton" class="print" onclick="exportToPDF()">Download</button>
         <button class="addreport" onclick="openPopup()">Add Record</button>
       </div>
       <div class="piechart">
         <canvas id="barangayPieChart"></canvas>
 
         <script>
-          // Assuming you have data for barangays in Gensan
-          var barangayData = {
-            labels: [
-              "Electrical Issue",
-              "Natural Causes",
-              "Arson",
-              "Human Error",
-              "Equipment Malfunction",
-            ],
+        var barangayData = {
+            labels: <?php echo json_encode($labels); ?>,
             datasets: [
-              {
-                data: [65, 63, 49, 62, 37], // You should replace these values with the actual data
-                backgroundColor: [
-                  "#FF6384",
-                  "#36A2EB",
-                  "#FFCE56",
-                  "#4CAF50",
-                  "#9966FF",
-                ],
-              },
+                {
+                    data: <?php echo json_encode($data); ?>,
+                    backgroundColor: [
+                        "#FF6384",
+                        "#36A2EB",
+                        "#FFCE56",
+                        "#4CAF50",
+                        "#9966FF",
+                    ],
+                },
             ],
-          };
+        };
 
-          // Get the canvas element
-          var ctx = document
+        var ctx = document
             .getElementById("barangayPieChart")
             .getContext("2d");
 
-          // Create a pie chart
-          var myPieChart = new Chart(ctx, {
+        var myPieChart = new Chart(ctx, {
             type: "pie",
             data: barangayData,
             options: {
-              title: {
-                display: true,
-                text: "Barangays in Gensan",
-              },
-              plugins: {
-                datalabels: {
-                  color: "#fff", // Set label text color
-                  font: {
-                    size: 12, // Set label font size
-                  },
-                  formatter: function (value, context) {
-                    return context.chart.data.labels[context.dataIndex];
-                  },
+                title: {
+                    display: true,
+                    text: "Barangays in Gensan",
                 },
-              },
-              legend: {
-                display: false,
-                position: "top",
-                align: "start",
-              },
+                plugins: {
+                    datalabels: {
+                        color: "#fff",
+                        font: {
+                            size: 12,
+                        },
+                        formatter: function (value, context) {
+                            return context.chart.data.labels[context.dataIndex];
+                        },
+                    },
+                },
+                legend: {
+                    display: false,
+                    position: "top",
+                    align: "start",
+                },
+                tooltips: {
+                    enabled: true,
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                            var total = dataset.data.reduce(function (previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            });
+                            var currentValue = dataset.data[tooltipItem.index];
+                            var percentage = ((currentValue / total) * 100).toFixed(2);
+                            return dataset.label + ": " + percentage + "%";
+                        },
+                    },
+                },
             },
-          });
+        });
         </script>
       </div>
       <div class="areachart">
         <canvas id="barangayAreaChart" width="1100px" height="700"></canvas>
 
         <script>
-          // Mock data representing fire outbreak cases in multiple barangays
-          var barangayLabels = ["January", "February", "March", "April", "May"];
-          var barangayData = [
-            {
-              name: "Electrical Issue",
-              data: [10, 15, 8, 20, 12],
-              color: "#FF6384",
-            },
-            {
-              name: "Natural Causes",
-              data: [8, 12, 15, 10, 18],
-              color: "#36A2EB",
-            },
-            {
-              name: "Arson",
-              data: [5, 10, 12, 8, 14],
-              color: "#FFCE56",
-            },
-            {
-              name: "Human Error",
-              data: [6, 9, 13, 14, 20],
-              color: "#4CAF50",
-            },
-            {
-              name: "Equipment Malfunction",
-              data: [7, 6, 2, 18, 4],
-              color: "#9966FF",
-            },
-            // Add more barangays as needed
-          ];
+        var barangayLabels = <?php echo json_encode(array_values($barangayLabels)); ?>;
+        var barangayData = [];
 
-          var ctx = document
+        <?php
+        foreach ($barangayData as $cause => $data) {
+            foreach ($data as $entry) {
+                echo "barangayData.push({
+                        name: '$cause',
+                        data: [" . $entry['count'] . "],
+                        backgroundColor: '" . $entry['color'] . "',
+                    });";
+            }
+        }
+        ?>
+        var ctx = document
             .getElementById("barangayAreaChart")
             .getContext("2d");
 
-          var multiBarangayAreaChart = new Chart(ctx, {
+        var multiBarangayAreaChart = new Chart(ctx, {
             type: "line",
             data: {
-              labels: barangayLabels,
-              datasets: barangayData.map((barangay) => ({
-                label: barangay.name,
-                data: barangay.data,
-                backgroundColor: barangay.color, // Fill color under the line
-                borderColor: barangay.color, // Line color
-                borderWidth: 7,
-                pointRadius: 5, // Size of the data points
-                pointBackgroundColor: barangay.color, // Color of the data points
-                fill: false, // Fill the area under the line
-              })),
+                labels: barangayLabels,
+                datasets: barangayData.map((barangay) => ({
+                    label: barangay.name,
+                    data: barangay.data,
+                    backgroundColor: barangay.color, // Fill color under the line
+                    borderColor: barangay.color, // Line color
+                    borderWidth: 7,
+                    pointRadius: 5, // Size of the data points
+                    pointBackgroundColor: barangay.color, // Color of the data points
+                    fill: false, // Fill the area under the line
+                })),
             },
             options: {
-              scales: {
-                x: {
-                  type: "category",
-                  labels: barangayLabels,
+                scales: {
+                    x: {
+                        type: "category",
+                        labels: barangayLabels,
+                    },
+                    y: {
+                        beginAtZero: true,
+                    },
                 },
-                y: {
-                  beginAtZero: true,
-                },
-              },
             },
-          });
+        });
         </script>
       </div>
       

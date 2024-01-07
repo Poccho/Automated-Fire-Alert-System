@@ -91,7 +91,7 @@ if (!isset($_SESSION['user_id'])) {
             // Function to refresh the table every second
             setInterval(function () {
                 refreshTable();
-            }, 1000);
+            }, 5000);
 
             // Initial table load
             refreshTable();

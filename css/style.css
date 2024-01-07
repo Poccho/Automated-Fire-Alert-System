@@ -163,7 +163,7 @@ i[class="fa-solid fa-repeat fa-beat fa-xs"] {
 }
 
 .btn-div {
-  float: left;
+  float: right;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   margin-right: 25px;
@@ -309,7 +309,7 @@ td {
   margin-top: 10px;
   background-color: white;
   border-radius: 10px;
-  margin-right: 25px;
+  margin-left: 25px;
   align-content: center;
 }
 
