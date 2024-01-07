@@ -10,7 +10,7 @@
 }
 
 body {
-  background-color: #dadada;
+  background-color: grey;
   font-family: montserrat;
 }
 nav {
@@ -107,12 +107,29 @@ a:hover {
 
 #map {
   display: flex;
-  width: 970px;
-  height: 580px;
+  width: 72vw;
+  height: 87vh;
   border-color: black;
   border-radius: 10px;
   float: left;
   margin-top: 5px;
+  flex: 1;
+}
+
+
+
+i[class="fa-solid fa-repeat fa-beat fa-xs"] {
+  float: left;
+}
+
+.alarm-content{
+  height: 87vh;
+  width: 25vw;
+  float: right;
+  position: relative;
+  margin-top: 5px;
+  margin-right: 1vw;
+  text-align: center;
 }
 
 .title-alarm {
@@ -126,26 +143,20 @@ a:hover {
   align-items: center;
   font-size: xx-large;
   height: 40px;
-  width: 350px;
-}
-
-i[class="fa-solid fa-repeat fa-beat fa-xs"] {
-  float: left;
-}
+  width: 25vw;}
 
 .alarms {
-  float: right;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   margin-right: 25px;
-  height: 525px;
-  width: 350px;
-  background-color: #fff;
-  margin-top: 5px;
+  height: 72vh;
+  width: 25vw;  background-color: #fff;
   text-align: center;
   align-items: center;
   overflow-y: auto;
   border-color: #2c3e50;
+}
+
+.highlighted-cell  {
+  background-color: #4cf84c; /* Set your desired highlight color */
 }
 
 .alarm-box {
@@ -163,16 +174,16 @@ i[class="fa-solid fa-repeat fa-beat fa-xs"] {
 }
 
 .btn-div {
-  float: right;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   margin-right: 25px;
   height: 55px;
-  width: 350px;
+  width: 25vw;  
   background-color: #fff;
   text-align: center;
   align-items: center;
   border-color: #2c3e50;
+  bottom: 0;
 }
 
 #switch-layers {
@@ -249,6 +260,8 @@ td {
   font-weight: bold;
   letter-spacing: 1px;
   border: none;
+  height: 30px;
+
 }
 
 #delete:hover {
@@ -272,9 +285,10 @@ td {
   cursor: pointer;
   padding: 10px 15px;
   font-weight: bold;
-  font-weight: bold;
   letter-spacing: 1px;
   border: none;
+  height: 30px;
+
 }
 
 #pin:hover {
@@ -282,6 +296,25 @@ td {
   animation: slidernbw 5s linear infinite;
   color: #000;
 }
+
+#remove-route {
+  background-color: #ff416c;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  padding: 10px 15px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: none;
+  height: 30px;
+}
+
+#remove-route:hover {
+  background-color: rgb(200, 255, 0);
+  animation: slidernbw 5s linear infinite;
+  color: #000;
+}
+
 
 @keyframes slidernbw {
   to {

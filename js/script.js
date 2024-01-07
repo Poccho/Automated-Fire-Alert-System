@@ -49,7 +49,7 @@ function switchTileLayer() {
 
 document
   .getElementById("switch-layers")
-  .addEventHandler("click", function (ev) {
+  .addEventListener("click", function (ev) {
     if (map.hasLayer(tilelayer1)) {
       map.addLayer(tilelayer2);
       map.removeLayer(tilelayer1);
@@ -58,32 +58,3 @@ document
       map.removeLayer(tilelayer2);
     }
   });
-
-// FUNCTIUON FOR PINNING LOCATIONS
-
-function pinLocation() {
-  var coordinates = "<?php echo $coordinates; ?>";
-  route1 = L.Routing.control({
-    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(coordinates)],
-  }).addTo(map);
-  map.setView([coordinates], 20);
-  circle = L.circle([coordinates], {
-    color: "red",
-    fillColor: "#f03",
-    fillOpacity: 0.5,
-    radius: 50,
-  }).addTo(map);
-}
-
-function remove() {
-  map.removeControl(route1);
-  map.removeControl(circle);
-  map.setView([6.073838, 125.115167], 100);
-  marker = L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(
-    map
-  );
-}
-
-[...links].map((link, index) => {
-  link.addEventListener("click", () => onLinkClick(link, index), false);
-});

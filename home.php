@@ -35,6 +35,10 @@ if (!isset($_SESSION['user_id'])) {
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="./js/script.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <audio id="notificationSound" src="misc\alarmsound.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
   </head>
   <body>
     <nav>
@@ -56,10 +60,12 @@ if (!isset($_SESSION['user_id'])) {
     <section>
       <div class="content">
         <div id="map"></div>
-        <div class="alarms">
-          <div class="title-alarm">
+        <div class="alarm-content">
+        <div class="title-alarm">
           <i class="fa-regular fa-bell fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-xs"></i>
           </div>
+        <div class="alarms">
+          
 
                  <table id="dynamic-table">
                   <tbody>
@@ -67,35 +73,63 @@ if (!isset($_SESSION['user_id'])) {
                  </table>
         </div>
         <div class="btn-div"><button id="switch-layers" onclick="switchTileLayer()">Switch Map Layers</button></div>
+        </div>
       </div>
     </section>
     <script>
-        // JavaScript/jQuery code for AJAX
-        $(document).ready(function () {
-            // Function to refresh the table content
-            function refreshTable() {
-                // AJAX request
-                $.ajax({
-                    url: 'refresh_table.php', // The server-side PHP script to handle the table refresh
-                    type: 'GET',
-                    success: function (data) {
-                        // Update the content of the table body
-                        $('#dynamic-table tbody').html(data);
-                                        if (data === 'new_row') {
-                    // Play the notification sound
+      $(document).ready(function () {
+          // Function to refresh the table content
+          let loopId; // To hold the interval ID for stopping the loop
+
+          function refreshTable() {
+              // AJAX request
+              $.ajax({
+                  url: 'refresh_table.php', // The server-side PHP script to handle the table refresh
+                  type: 'GET',
+                  success: function (data) {
+                    let initialRowCount = $('#dynamic-table tbody tr').length; // Get the initial row count
+                      // Update the content of the table body
+                      $('#dynamic-table tbody').html(data);
+
+                      // Get the updated row count after the refresh
+                      let updatedRowCount = $('#dynamic-table tbody tr').length;
+
+                      // Log initial and updated row counts to the console
+                      console.log('Initial Row Count:', initialRowCount);
+                      console.log('Updated Row Count:', updatedRowCount);
+
+                      // Check if the number of rows increased after the refresh
+                      if (updatedRowCount > initialRowCount) {
+                    // Play the notification sound if new rows were added
                     document.getElementById('notificationSound').play();
-                    }}
-                });
+
+                    // Start playing the sound in a loop
+                    loopId = setInterval(function () {
+                        let currentRowCount = $('#dynamic-table tbody tr').length;
+                        if (currentRowCount <= initialRowCount) {
+                            // Stop playing the sound if the row count decreases
+                            clearInterval(loopId);
+                        } else {
+                            document.getElementById('notificationSound').play();
+                        }
+                    }, 1000); // Adjust the interval as needed
+                }
+                
+                // Update the initial row count for the next comparison
+                initialRowCount = updatedRowCount;
             }
-
-            // Function to refresh the table every second
-            setInterval(function () {
-                refreshTable();
-            }, 5000);
-
-            // Initial table load
-            refreshTable();
         });
+    }
+
+          // Function to refresh the table every 5 seconds
+          setInterval(function () {
+              refreshTable();
+          }, 1000);
+
+          // Initial table load
+          refreshTable();
+      });
+
     </script>
 
   </body>
