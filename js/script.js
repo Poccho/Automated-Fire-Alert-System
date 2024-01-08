@@ -58,3 +58,22 @@ document
       map.removeLayer(tilelayer2);
     }
   });
+
+var coordinatesCard = document.getElementById("coordinates-card");
+var coordinatesInfo = document.getElementById("coordinates-info");
+
+// Event listener for clicking on the marker to display coordinates in a card
+marker.on("click", function (e) {
+  coordinatesInfo.textContent = `Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`;
+  coordinatesCard.style.display = "block";
+});
+
+// Close card when clicked outside the card area
+map.on("click", function (e) {
+  coordinatesCard.style.display = "none";
+});
+
+// TRIAL FUNCTION FOR SWITCHING TILE MAPS
+document.getElementById("switch-layers").addEventListener("click", function (ev) {
+  switchTileLayer();
+});

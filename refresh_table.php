@@ -93,41 +93,46 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         function remove(latitude, longitude) {
-            console.log("Removing: Lat - " + latitude + ", Long - " + longitude);
-
             let existingRoute = findRoute(latitude, longitude);
 
             if (existingRoute) {
-                // Ask for confirmation before deletion
-                let confirmDeletion = confirm("Are you sure you want to DELETE these coordinates?");
-                if (confirmDeletion) {
-                    let xhr = new XMLHttpRequest();
-                    xhr.open("POST", "delete_coordinates.php", true);
-                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    xhr.onreadystatechange = function() {
-                        if (xhr.readyState === XMLHttpRequest.DONE) {
-                            if (xhr.status === 200) {
-                                console.log("Connected to delete_coordinates.php successfully");
-                                let response = xhr.responseText;
-                                if (response === "Deletion successful") {
-                                    console.log("Database deletion successful");
-                                    deleteRoute(latitude, longitude);
+                // Set the map view to the coordinates before showing the confirmation alert
+                map.setView([latitude, longitude], 20);
+
+                // setTimeout to ensure the map view change occurs before the alert
+                setTimeout(function() {
+                    // Ask for confirmation after a slight delay to ensure map view change
+                    let confirmDeletion = confirm("Are you sure you want to DELETE these coordinates?");
+                    if (confirmDeletion) {
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", "delete_coordinates.php", true);
+                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === XMLHttpRequest.DONE) {
+                                if (xhr.status === 200) {
+                                    console.log("Connected to delete_coordinates.php successfully");
+                                    let response = xhr.responseText;
+                                    if (response === "Deletion successful") {
+                                        console.log("Database deletion successful");
+                                        deleteRoute(latitude, longitude);
+                                    } else {
+                                        console.error("Database deletion failed");
+                                        // Handle errors or display a message
+                                    }
                                 } else {
-                                    console.error("Database deletion failed");
-                                    // Handle errors or display a message
+                                    console.error("Connection to delete_coordinates.php failed");
+                                    // Handle connection errors or display a message
                                 }
-                            } else {
-                                console.error("Connection to delete_coordinates.php failed");
-                                // Handle connection errors or display a message
                             }
-                        }
-                    };
-                    xhr.send("latitude=" + latitude + "&longitude=" + longitude);
-                }
+                        };
+                        xhr.send("latitude=" + latitude + "&longitude=" + longitude);
+                    }
+                }, 100); // Adjust the delay time if needed
             } else {
                 console.warn("Coordinates not pinned, skipping deletion from the database");
             }
         }
+
 
         function deleteRoute(latitude, longitude) {
             console.log("Deleting route: Lat - " + latitude + ", Long - " + longitude);
@@ -174,16 +179,24 @@ if (!isset($_SESSION['user_id'])) {
             let existingRoute = findRoute(latitude, longitude);
 
             if (existingRoute) {
-                // Ask for confirmation before removing the route
-                let confirmRemove = confirm("Are you sure you want to REMOVE this route?");
-                if (confirmRemove) {
-                    // Remove the route from the map only
-                    deleteRoute(latitude, longitude);
-                }
+                // Set the map view to the coordinates before showing the confirmation alert
+                map.setView([latitude, longitude], 20);
+
+                // setTimeout to ensure the map view change occurs before the alert
+                setTimeout(function() {
+                    // Ask for confirmation after a slight delay to ensure map view change
+                    let confirmRemove = confirm("Are you sure you want to REMOVE this route?");
+                    if (confirmRemove) {
+                        // Remove the route from the map only
+                        deleteRoute(latitude, longitude);
+                    }
+                }, 100); // Adjust the delay time as needed
             } else {
                 console.warn("Route not found, unable to remove from the map");
             }
         }
+
+
 
 
         window.onload = function() {

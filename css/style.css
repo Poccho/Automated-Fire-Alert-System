@@ -13,6 +13,15 @@ body {
   background-color: grey;
   font-family: montserrat;
 }
+
+.charts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Additional styles as needed */
+}
+
+
 nav {
   background: #ff416c;
   background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
@@ -323,40 +332,46 @@ td {
 }
 
 .piechart {
-  width: 500px;
-  height: 500px;
+  width: 30vw;
+  height: 77vh;
   float: left;
-  padding-bottom: 20px;
   margin-top: 10px;
   background-color: white;
   border-radius: 10px;
-  margin-left: 20px;
   align-content: center;
 }
 
-.areachart {
-  height: 500px;
-  width: 800px;
+#barangayPieChart{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+}
+
+
+.barchart {
+  width: 30vw;
+  height: 77vh;
   float: left;
-  padding-bottom: 20px;
   margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
   background-color: white;
   border-radius: 10px;
-  margin-left: 25px;
   align-content: center;
 }
 
-#barangayAreaChart {
-  height: 700px;
-  width: 800px;
-  float: right;
-  padding-bottom: 20px;
-  margin-top: 10px;
-  background-color: white;
-  border-radius: 10px;
-  margin-right: 25px;
-  align-content: center;
+#barangayBarChart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+  height: 77vh;
+
 }
+
+
+
 .buttons {
   padding-top: 10px;
   padding-bottom: 10px;
@@ -783,6 +798,50 @@ td {
   transform: translateY(100%);
 }
 
-/* CSS FOR DROPDOWN CHOICES*/
+/* CSS FOR SVG MAP*/
+.svg-container {
+  width: 30vw;
+  height: 77vh;
+  float: left;
+  margin-top: 10px;
+  background-color: white;
+  border-radius: 10px;
+  align-content: center;
+}
+
+.svg-container svg {
+  width: 100%;
+  height: 100%;
+  float:right;
+}
+
+.svg-container:hover {
+  fill: #ff0000; /* Change the fill color to red when container is hovered */
+}
+path:hover {
+  fill: #ff0000; /* Change the fill color to red when container is hovered */
+}
+.hover-info {
+  position: absolute;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: black;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  pointer-events: none;
+}
+
+.hover-info h2 {
+  margin-bottom: 5px;
+  font-size: 18px;
+}
+
+.hover-info p {
+  margin: 0;
+}
+
+.infoTitle, .infoDesc{
+  color: white;
+}
 
 /* CONTACT US CSS FILE*/

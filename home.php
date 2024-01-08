@@ -60,6 +60,13 @@ if (!isset($_SESSION['user_id'])) {
     <section>
       <div class="content">
         <div id="map"></div>
+        <div id="coordinates-card" style="display: none;">
+          <div id="coordinates-content">
+            <h3>Coordinates</h3>
+            <p id="coordinates-info"></p>
+          </div>
+        </div>
+
         <div class="alarm-content">
         <div class="title-alarm">
           <i class="fa-regular fa-bell fa-xs"></i>   Alarms   <i class="fa-regular fa-bell fa-xs"></i>
