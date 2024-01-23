@@ -52,8 +52,8 @@ if (!isset($_SESSION['user_id'])) {
       <ul>
         <li><a class="active" href="home.php">Dashboard</a></li>
         <li><a href="statistics.php">Statistics</a></li>
+        <li><a href="history.php">History</a></li>
         <li><a href="contact.php">Contact</a></li>
-        <li><a href="about.php">About</a></li>
         <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>

@@ -50,12 +50,12 @@ function switchTileLayer() {
 document
   .getElementById("switch-layers")
   .addEventListener("click", function (ev) {
-    if (map.hasLayer(tilelayer1)) {
-      map.addLayer(tilelayer2);
-      map.removeLayer(tilelayer1);
+    if (map.hasLayer(initialTileLayer)) {
+      map.addLayer(alternateTileLayer);
+      map.removeLayer(initialTileLayer);
     } else {
-      map.addLayer(tilelayer1);
-      map.removeLayer(tilelayer2);
+      map.addLayer(initialTileLayer);
+      map.removeLayer(alternateTileLayer);
     }
   });
 

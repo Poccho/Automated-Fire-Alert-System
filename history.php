@@ -18,7 +18,6 @@ if (!isset($_SESSION['user_id'])) {
     />
     <script src="./js/downloadCSV.js" defer></script>
 
-
   </head>
   <body>
     <nav>
@@ -32,14 +31,14 @@ if (!isset($_SESSION['user_id'])) {
       <ul>
         <li><a href="home.php">Dashboard</a></li>
         <li><a href="statistics.php">Statistics</a></li>
-        <li><a href="contact.php">Contact</a></li>
         <li><a class="active" href="history.php">History</a></li>
+        <li><a href="contact.php">Contact</a></li>
         <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>
     <div class="buttons">
-        <button id="exportButton" class="print" onclick="downloadFilteredCSV()">Download CSV</button>
-        <input id="searchInput" class="search-input" oninput="filterTable()" placeholder="Search Barangay"></input>
+        <button id="exportButton" class="print" onclick="downloadFilteredTableAsCSV()">Download CSV</button>
+        <input id="searchInput" class="search-input" oninput="filterTable()" placeholder="Search"></input>
     </div>
     <section class="charts">
     <div class="history">
@@ -49,7 +48,7 @@ if (!isset($_SESSION['user_id'])) {
           <th id="th">Barangay</th>
           <th id="th">Cause</th>
           <th id="th">Time</th>
-          <th id="th">Coordinates</th>
+          <th id="th">Coorinates</th>
         </tr>
       </thead>
       <tbody>

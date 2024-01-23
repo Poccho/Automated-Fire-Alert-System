@@ -151,15 +151,15 @@ $conn->close();
       <ul>
         <li><a href="home.php">Dashboard</a></li>
         <li><a class="active" href="statistics.php">Statistics</a></li>
+        <li><a href="history.php">History</a></li>
         <li><a href="contact.php">Contact</a></li>
-        <li><a href="about.php">About</a></li>
         <li><a href=logout.php> Sign Out </a></li>
       </ul>
     </nav>
     <div class="buttons">
         <button id="exportButton" class="print" onclick="exportToPDF()">Download</button>
         <button class="addreport" onclick="openPopup()">Add Record</button>
-      </div>
+    </div>
     <section class="charts">
 
       <div class="piechart">
