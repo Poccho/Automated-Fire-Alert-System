@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ..\index.php");
     exit();
 }
 ?>
@@ -20,22 +20,11 @@ if (!isset($_SESSION['user_id'])) {
 
   </head>
   <body>
-    <nav>
-      <input type="checkbox" id="check" />
-      <label for="check" class="checkbtn">
-        <i class="fas fa-bars"></i>
-      </label>
-      <label class="logo"
-        ><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label
-      >
-      <ul>
-        <li><a href="home.php">Dashboard</a></li>
-        <li><a href="statistics.php">Statistics</a></li>
-        <li><a class="active" href="history.php">History</a></li>
-        <li><a href="contact.php">Contact</a></li>
-        <li><a href=logout.php> Sign Out </a></li>
-      </ul>
-    </nav>
+
+<?php
+ include "navBar.php";
+?>
+
     <div class="buttons">
         <button id="exportButton" class="print" onclick="downloadFilteredTableAsCSV()">Download CSV</button>
         <input id="searchInput" class="search-input" oninput="filterTable()" placeholder="Search"></input>
@@ -54,21 +43,25 @@ if (!isset($_SESSION['user_id'])) {
       <tbody>
         <?php
 
-        include "connection.php";
+        include "db/connection.php";
 
         // Fetch data from the database
         $sql = "SELECT * FROM incident_data";
         $result = $conn->query($sql);
-
-        while ($row = $result->fetch_assoc()) {
-          echo "<tr>";
-          echo "<td>" . $row["barangay"] . "</td>";
-          echo "<td>" . $row["cause"] . "</td>";
-          echo "<td>" . $row["time"] . "</td>";
-          echo "<td>" . $row["coordinates"] . "</td>";
-          echo "</tr>";
+        
+        if ($result && $result->num_rows > 0) {
+            // Output data of each row
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr>";
+                echo "<td>" . $row["barangay"] . "</td>";
+                echo "<td>" . $row["cause"] . "</td>";
+                echo "<td>" . $row["time"] . "</td>";
+                echo "<td>" . $row["coordinates"] . "</td>";
+                echo "</tr>";
+            }
+        } else {
+          echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
         }
-
         $conn->close();
         ?>
       </tbody>

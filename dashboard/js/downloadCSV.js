@@ -5,28 +5,77 @@ function filterTable() {
     table = document.getElementById("dataTable");
     tr = table.getElementsByTagName("tr");
 
+    // Check if the search input is empty
+    if (filter === "") {
+        // If empty, display all rows in the table
+        for (i = 0; i < tr.length; i++) {
+            tr[i].style.display = "";
+        }
+        // Remove any existing "No results found" rows
+        var noResultRows = table.querySelectorAll(".no-result-row");
+        noResultRows.forEach(function(row) {
+            row.remove();
+        });
+        return; // Exit the function early
+    }
+
+    var resultsFound = false;
+
     for (i = 0; i < tr.length; i++) {
         var found = false;
+        if (i === 0) {
+            tr[i].style.display = "";
+            continue;  // Skip the header row
+        }
         for (j = 0; j < tr[i].getElementsByTagName("td").length; j++) {
             td = tr[i].getElementsByTagName("td")[j];
             if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
                     found = true;
+                    resultsFound = true;
                     break;
                 }
             }
         }
         tr[i].style.display = found ? "" : "none";
     }
+
+    if (!resultsFound) {
+        // If no results found, add a row to the table to display a message
+        var noResultRow = table.insertRow(table.rows.length);
+        noResultRow.classList.add("no-result-row"); // Add a class to identify the row
+        var cell = noResultRow.insertCell(0);
+        cell.colSpan = table.rows[0].cells.length; // Span the entire row
+        cell.textContent = "No results found.";
+        cell.style.textAlign = "center"; // Center the text
+
+    }
+    // If results are found, remove the no result row if it exists
+    else {
+        var noResultRows = table.querySelectorAll(".no-result-row");
+        noResultRows.forEach(function(row) {
+            row.remove();
+        });
+    }
 }
 
+
+
+
 function downloadFilteredTableAsCSV() {
-    // Get the visible rows (not filtered out)
-    var visibleRows = Array.from(document.querySelectorAll("#dataTable tbody tr:not([style='display: none;'])"));
+    var table = document.getElementById("dataTable");
+
+    // Check if there are visible rows (not filtered out)
+    var visibleRows = Array.from(table.querySelectorAll("tbody tr:not([style='display: none;'])"));
+
+    if (visibleRows.length === 0) {
+        alert("No results found. Cannot download empty table.");
+        return;
+    }
 
     // Get table headers
-    var headers = Array.from(document.querySelectorAll("#dataTable thead th")).map(th => th.innerText);
+    var headers = Array.from(table.querySelectorAll("thead th")).map(th => th.innerText);
 
     // Process each visible row
     var csvContent = headers.join(",") + "\n";
@@ -54,8 +103,12 @@ function downloadFilteredTableAsCSV() {
     link.setAttribute("href", url);
     link.setAttribute("download", "filtered_table_data.csv");
     document.body.appendChild(link);
+    
+    // Trigger the click only if the link is appended to the body
     link.click();
 
     // Clean up
     document.body.removeChild(link);
 }
+
+

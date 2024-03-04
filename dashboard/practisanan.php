@@ -1,293 +1,51 @@
 <?php
-include "connection.php";
+include "db/connection.php";
+include "db/stats.php";
 
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: ..\index.php");
     exit();
 }
 
 // Function to sanitize and validate input
-function sanitizeInput($input) {
-    $input = trim($input);
-    $input = stripslashes($input);
-    $input = htmlspecialchars($input);
-    return $input;
-}
-
-// Check if the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get user input
-    $location = sanitizeInput($_POST['location']);
-    $barangay = sanitizeInput($_POST['barangay']);
-    $time = sanitizeInput($_POST['time']);
-    $possibleCause = sanitizeInput($_POST['choices']);
-
-    // Insert the data into the database
-    $stmt = $conn->prepare("INSERT INTO inicdent_data (coordinates, barangay, time, cause) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $location, $barangay, $time, $possibleCause);
-
-    if ($stmt->execute()) {
-        // Style the success message as a sliding-out pop-up with JavaScript
-        echo '<div id="success-popup" class="popup success-slide-out" style="background-color: #4CAF50; color: #fff; text-align: center; border-radius: 5px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 320px; height: 50px; line-height: 50px;">';
-        echo "Report uploaded successfully!";
-        echo '</div>';
-        echo '<script>
-                setTimeout(function() {
-                    var successPopup = document.getElementById("success-popup");
-                    successPopup.classList.remove("success-slide-out");
-                    successPopup.style.opacity = "0";
-                    setTimeout(function() {
-                        successPopup.style.display = "none";
-                    }, 500); // Adjust the delay based on your animation duration
-                }, 3000);
-              </script>';
-    } else {
-        // Style the error message as a sliding-out pop-up with JavaScript
-        echo '<div id="error-popup" class="popup error-slide-out" style="background-color: #f44336; color: #fff; text-align: center; border-radius: 5px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 320px; height: 50px; line-height: 50px;">';
-        echo "Error uploading report: " . $stmt->error;
-        echo '</div>';
-        echo '<script>
-                setTimeout(function() {
-                    var errorPopup = document.getElementById("error-popup");
-                    errorPopup.classList.remove("error-slide-out");
-                    errorPopup.style.opacity = "0";
-                    setTimeout(function() {
-                        errorPopup.style.display = "none";
-                    }, 500); // Adjust the delay based on your animation duration
-                }, 3000);
-              </script>';
-    }
-
-    $stmt->close();
-}
-
-$sql = "SELECT cause, COUNT(*) as count FROM incident_data GROUP BY cause";
-$result = $conn->query($sql);
-
-// Initialize arrays to store labels and data for the pie chart
-$labels = [];
-$data = [];
-
-// Process the result set
-while ($row = $result->fetch_assoc()) {
-    $labels[] = $row['cause'];
-    $data[] = $row['count'];
-}
-
-$sql = "SELECT cause, MONTH(time) AS month, COUNT(*) AS count FROM history WHERE YEAR(time) = YEAR(CURRENT_DATE()) GROUP BY cause, MONTH(time)";
-$result = $conn->query($sql);
-
-// Initialize arrays to store labels, data, and colors for the area chart
-$barangayLabels = [];
-$barangayData = [];
-
-// Define colors to match with the pie chart
-$colors = [
-    "#FF6384",
-    "#36A2EB",
-    "#FFCE56",
-    "#4CAF50",
-    "#9966FF",
-];
-
-$colorIndex = 0;
-
-// Process the result set
-while ($row = $result->fetch_assoc()) {
-    $barangayLabels[$row['month']] = date('F', mktime(0, 0, 0, $row['month'], 1));
-
-    $color = $colors[$colorIndex];
-    $barangayData[$row['cause']][] = [
-        'count' => $row['count'],
-        'color' => $color,
-    ];
-
-    // Move to the next color or reset to the first one
-    $colorIndex = ($colorIndex + 1) % count($colors);
-}
-
-// Output fetched data for debugging
-// Close the database connection
-$conn->close();
-
-
-
 ?>
 
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8" />
+
+<head>
     <title>AFAS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="utf-8" />
     <script src="./js/popup.js"></script>
     <script src="./js/download.js"></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css"/> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css"/>
+</head>
 
-    <!-- Add these script tags in the head of your HTML file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
-
-
-
-  </head>
-  <body>
-    <nav>
-      <input type="checkbox" id="check" />
-      <label for="check" class="checkbtn">
-        <i class="fas fa-bars"></i>
-      </label>
-      <label class="logo"
-        ><i class="fa-solid fa-house-fire fa-fade fa-xs"></i> AFAS</label
-      >
-      <ul>
-        <li><a href="home.php">Dashboard</a></li>
-        <li><a class="active" href="statistics.php">Statistics</a></li>
-        <li><a href="history.php">History</a></li>
-        <li><a href="contact.php">Contact</a></li>
-        <li><a href=logout.php> Sign Out </a></li>
-      </ul>
-    </nav>
+<body>
+    <?php include "navBar.php"; ?>
     <div class="buttons">
         <button id="exportButton" class="print" onclick="exportToPDF()">Download</button>
         <button class="addreport" onclick="openPopup()">Add Record</button>
     </div>
     <section class="charts">
-
-      <div class="piechart">
-        <canvas id="barangayPieChart"></canvas>
-        <script>
-          var barangayData = {
-              labels: <?php echo json_encode($labels); ?>,
-              datasets: [
-                  {
-                      data: <?php echo json_encode($data); ?>,
-                      backgroundColor: [
-                          "#FF6384",
-                          "#36A2EB",
-                          "#FFCE56",
-                          "#4CAF50",
-                          "#9966FF",
-                      ],
-                  },
-              ],
-          };
-
-          var ctx = document
-              .getElementById("barangayPieChart")
-              .getContext("2d");
-
-          var myPieChart = new Chart(ctx, {
-              type: "pie",
-              data: barangayData,
-              options: {
-                  title: {
-                      display: true,
-                      text: "Barangays in Gensan",
-                  },
-                  plugins: {
-                      datalabels: {
-                          color: "#fff",
-                          font: {
-                              size: 12,
-                          },
-                          formatter: function (value, context) {
-                              return context.chart.data.labels[context.dataIndex];
-                          },
-                      },
-                  },
-                  legend: {
-                      display: false,
-                      position: "top",
-                      align: "start",
-                  },
-                  tooltips: {
-                      enabled: true,
-                      callbacks: {
-                          label: function (tooltipItem, data) {
-                              var dataset = data.datasets[tooltipItem.datasetIndex];
-                              var total = dataset.data.reduce(function (previousValue, currentValue) {
-                                  return previousValue + currentValue;
-                              });
-                              var currentValue = dataset.data[tooltipItem.index];
-                              var percentage = ((currentValue / total) * 100).toFixed(2);
-                              return dataset.label + ": " + percentage + "%";
-                          },
-                      },
-                  },
-              },
-          });
-        </script>
-      </div>
-
-      <div class="barchart">
-          <canvas id="barangayBarChart"></canvas>
-      </div>
-
-      <script>
-          var barangayLabels = <?php echo json_encode(array_values($barangayLabels)); ?>;
-          var barangayData = [];
-
-          <?php
-          foreach ($barangayData as $cause => $data) {
-              foreach ($data as $entry) {
-                  echo "barangayData.push({
-                          name: '$cause',
-                          data: [" . $entry['count'] . "],
-                          backgroundColor: '" . $entry['color'] . "',
-                      });";
-              }
-          }
-          ?>
-          var ctx = document.getElementById("barangayBarChart");
-
-          var multiBarangayBarChart = new Chart(ctx, {
-              type: "bar",
-              data: {
-                  labels: barangayLabels,
-                  datasets: barangayData.map((barangay) => ({
-                      label: barangay.name,
-                      data: barangay.data,
-                      backgroundColor: barangay.color,
-                      borderColor: barangay.color,
-                      borderWidth: 1,
-                  })),
-              },
-              options: {
-                  indexAxis: "y",
-                  scales: {
-                      x: {
-                          beginAtZero: true,
-                      },
-                      y: {
-                          ticks: {
-                              callback: function (value, index, values) {
-                                  return barangayLabels[index];
-                              },
-                          },
-                      },
-                  },
-              },
-          });
-
-      </script>
-      </div>
-
-      <div class="svg-container">
-        <!-- Your SVG -->
-        <div class="hover-info"></div>
-        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        width="100%" viewBox="0 0 2809 3881" enable-background="new 0 0 2809 3881" xml:space="preserve">
-          <g>
-            <path id="upper_labay" fill="#D8DFF1" opacity="1.000000" stroke="none" d="
+        
+        <div class="svg-container">
+            <!-- Your SVG -->
+            <div class="hover-info"></div>
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="100%" viewBox="0 0 2809 3881"
+                enable-background="new 0 0 2809 3881" xml:space="preserve">
+                <g>
+                    <path id="Upper Labay" fill="#8B0000" opacity="1.000000" stroke="none" d="
             M2365.173340,324.039490 
               C2365.316895,326.488678 2365.347656,329.636230 2363.790039,331.266510 
               C2352.711182,342.863831 2353.381836,357.258636 2353.714844,371.571716 
@@ -338,7 +96,7 @@ $conn->close();
               C2318.117920,316.137939 2337.730957,319.858765 2357.411865,323.058075 
               C2359.708740,323.431427 2362.020752,323.712006 2365.173340,324.039490 
             z"></path>
-            <path id="batomelong" fill="#DCCEE4" opacity="1.000000" stroke="none" d="
+                    <path id="Batomelong" fill="#00008B" opacity="1.000000" stroke="none" d="
             M2412.104736,887.001892 
               C2412.296631,887.582336 2412.583496,888.097168 2412.716309,889.786438 
               C2412.686279,891.653992 2412.905518,892.281555 2413.125000,892.909119 
@@ -503,7 +261,7 @@ $conn->close();
               C2404.374756,875.567444 2403.715576,876.028809 2402.672852,877.481201 
               C2405.561035,881.315491 2408.832764,884.158691 2412.104736,887.001892 
             z"></path>
-            <path id="olympog" fill="#FCF9B5" opacity="1.000000" stroke="none" d="
+                    <path id="Olympog" fill="#556B2F" opacity="1.000000" stroke="none" d="
             M1860.204224,199.880219 
               C1860.099854,259.595032 1859.835205,319.251190 1859.657104,378.907623 
               C1859.563599,410.237457 1859.781982,441.568817 1859.575562,472.897583 
@@ -555,7 +313,7 @@ $conn->close();
               C1858.964355,199.153366 1859.489868,199.420380 1860.086792,199.546692 
               C1860.086792,199.546692 1860.079834,199.821655 1860.204224,199.880219 
             z"></path>
-            <path id="conel" fill="#F4E5B7" opacity="1.000000" stroke="none" d="
+                    <path id="Conel" fill="#8B8B00" opacity="1.000000" stroke="none" d="
             M1766.732910,1366.912354 
               C1763.737915,1366.642090 1761.458862,1366.108032 1759.157959,1365.984253 
               C1747.865967,1365.376465 1736.569702,1364.844238 1725.271606,1364.362183 
@@ -619,7 +377,7 @@ $conn->close();
               C1772.228149,1359.161011 1772.620728,1361.961670 1771.900513,1364.426636 
               C1771.567261,1365.567505 1768.995483,1366.054321 1766.732910,1366.912354 
             z"></path>
-            <path id="mabuhay" fill="#ECCFC4" opacity="1.000000" stroke="none" d="
+                    <path id="Mabuhay" fill="#4B0082" opacity="1.000000" stroke="none" d="
             M1038.760376,907.654541 
               C1038.726196,905.688721 1038.692017,903.722839 1039.211426,900.375854 
               C1038.495239,888.478333 1039.046143,877.289368 1035.474854,867.623352 
@@ -700,7 +458,7 @@ $conn->close();
               C1049.950684,953.565735 1046.973633,937.950073 1043.635498,922.413025 
               C1042.553467,917.376892 1040.415405,912.567566 1038.760376,907.654541 
             z"></path>
-            <path id="tinagacan" fill="#DBE9BB" opacity="1.000000" stroke="none" d="
+                    <path id="Tinagacan" fill="#8B4513" opacity="1.000000" stroke="none" d="
             M2337.227783,1209.921997 
               C2337.258057,1212.734863 2337.288086,1215.547607 2336.731934,1219.459351 
               C2335.418945,1223.682495 2334.692139,1226.806641 2333.355225,1230.268677 
@@ -867,7 +625,7 @@ $conn->close();
               C2347.484619,1204.229370 2343.125244,1204.987427 2338.838867,1206.042603 
               C2336.950928,1206.507202 2335.171631,1207.559570 2337.227783,1209.921997 
             z"></path>
-            <path id="katangawan" fill="#DCCEE4" opacity="1.000000" stroke="none" d="
+                    <path id="Katangawan" fill="#008B8B" opacity="1.000000" stroke="none" d="
             M2291.113037,1360.428711 
               C2291.166016,1361.245117 2291.218994,1362.061646 2290.738281,1363.848511 
               C2290.007324,1367.954956 2290.998535,1370.222778 2294.479736,1370.671753 
@@ -971,7 +729,7 @@ $conn->close();
               C2284.996094,1352.432495 2285.332764,1352.566895 2285.258301,1353.404541 
               C2286.098877,1357.321777 2286.991943,1360.422119 2291.113037,1360.428711 
             z"></path>
-            <path id="ligaya" fill="#F3E4B7" opacity="1.000000" stroke="none" d="
+                    <path id="Ligaya" fill="#8B008B" opacity="1.000000" stroke="none" d="
             M2119.032227,1680.957520 
               C2106.786133,1674.308472 2095.159912,1668.058105 2081.737061,1660.841919 
               C2082.021484,1667.114136 2082.194824,1671.267334 2082.401123,1675.418823 
@@ -1013,7 +771,7 @@ $conn->close();
               C2164.027832,1721.666626 2164.402588,1716.396118 2171.778809,1712.687744 
               C2154.347656,1700.396973 2136.475098,1691.708618 2119.032227,1680.957520 
             z"></path>
-            <path id="buayan" fill="#EBCFC4" opacity="1.000000" stroke="none" d="
+                    <path id="Buayan" fill="#2F4F4F" opacity="1.000000" stroke="none" d="
             M2258.550293,2206.435791 
               C2259.100342,2212.769043 2259.650635,2219.102539 2259.512695,2226.630371 
               C2258.849854,2229.190186 2258.874756,2230.555176 2258.899658,2231.920410 
@@ -1070,7 +828,7 @@ $conn->close();
               C2246.691162,2179.207520 2248.584473,2183.236328 2248.034912,2185.866455 
               C2245.933350,2195.921143 2251.772949,2201.276611 2258.550293,2206.435791 
             z"></path>
-            <path id="baluan" fill="#D8DFF1" opacity="1.000000" stroke="none" d="
+                    <path id="Baluan" fill="#008080" opacity="1.000000" stroke="none" d="
             M2131.075195,2227.103027 
               C2129.988525,2227.122803 2128.901611,2227.142822 2126.679688,2226.560547 
               C2120.630859,2224.497314 2116.628906,2226.607666 2112.699463,2229.164062 
@@ -1131,7 +889,7 @@ $conn->close();
               C2145.864502,2222.839844 2139.721191,2223.297119 2133.658203,2224.260742 
               C2132.671631,2224.417480 2131.930176,2226.116943 2131.075195,2227.103027 
             z"></path>
-            <path id="bula" fill="#F3E4B7" opacity="1.000000" stroke="none" d="
+                    <path id="Bula" fill="#800000" opacity="1.000000" stroke="none" d="
             M1882.179688,2161.333008 
               C1882.379150,2163.506592 1882.336060,2165.020264 1882.482910,2167.270020 
               C1883.097412,2173.456055 1883.522095,2178.906006 1884.048218,2185.193359 
@@ -1187,7 +945,7 @@ $conn->close();
               C1885.245972,2149.260010 1883.109619,2151.654297 1882.270630,2154.382324 
               C1881.671875,2156.329102 1882.014526,2158.565430 1882.179688,2161.333008 
             z"></path>
-            <path id="lagao" fill="#DBE9BB" opacity="1.000000" stroke="none" d="
+                    <path id="Lagao" fill="#000080" opacity="1.000000" stroke="none" d="
             M1709.671875,1613.943604 
               C1710.015381,1610.352417 1710.358887,1606.761230 1710.802612,1602.122314 
               C1748.907715,1603.796997 1786.599731,1605.453491 1825.155396,1607.147949 
@@ -1236,7 +994,7 @@ $conn->close();
               C1706.432861,1678.970459 1706.836182,1677.328979 1706.911621,1675.672607 
               C1707.850464,1655.097168 1708.757080,1634.520142 1709.671875,1613.943604 
             z"></path>
-            <path id="san_isidro" fill="#FDFAB5" opacity="1.000000" stroke="none" d="
+                    <path id="San Isidro" fill="#4B0082" opacity="1.000000" stroke="none" d="
             M1597.022705,1481.793945 
               C1626.142212,1481.810181 1654.342773,1481.929443 1682.543213,1482.086792 
               C1690.508911,1482.131226 1698.473999,1482.293579 1706.439575,1482.388306 
@@ -1281,7 +1039,7 @@ $conn->close();
               C1461.476562,1484.194946 1509.450928,1484.422485 1557.422729,1484.152710 
               C1570.320190,1484.080200 1583.210205,1482.694458 1597.022705,1481.793945 
             z"></path>
-            <path id="city_heights" fill="#DCCEE4" opacity="1.000000" stroke="none" d="
+                    <path id="City Heights" fill="#9400D3" opacity="1.000000" stroke="none" d="
             M1620.984131,1935.052368 
               C1621.177490,1952.869751 1621.177490,1969.770508 1621.177490,1987.673096 
               C1616.848267,1987.859131 1612.974731,1988.170654 1609.101196,1988.170166 
@@ -1301,7 +1059,7 @@ $conn->close();
               C1584.001465,1842.058960 1601.214478,1843.951172 1619.268921,1844.936401 
               C1619.774536,1874.569458 1620.282715,1904.352539 1620.984131,1935.052368 
             z"></path>
-            <path id="dad_north" fill="#D8DFF1" opacity="1.000000" stroke="none" d="
+                    <path id="Dadiangas North" fill="#8B3E2F" opacity="1.000000" stroke="none" d="
             M1472.040527,1991.925781 
               C1491.579834,1991.925537 1510.126465,1991.925537 1529.285645,1991.925537 
               C1529.285645,2000.215454 1529.285645,2007.358643 1529.285645,2015.817627 
@@ -1318,7 +1076,7 @@ $conn->close();
               C1374.617065,1993.728271 1387.934082,1993.990967 1401.241821,1993.732910 
               C1424.513428,1993.281860 1447.779541,1992.543701 1472.040527,1991.925781 
             z"></path>
-            <path id="dad_east" fill="#FCF9B5" opacity="1.000000" stroke="none" d="
+                    <path id="Dadiangas East" fill="#2F4F4F" opacity="1.000000" stroke="none" d="
             M1531.896851,2054.638184 
               C1529.563843,2057.474121 1528.369385,2060.358154 1526.366943,2062.479736 
               C1522.940552,2066.109619 1519.150513,2069.499512 1513.352051,2067.771484 
@@ -1331,7 +1089,7 @@ $conn->close();
               C1592.243774,2049.366699 1581.495361,2042.169556 1581.029419,2054.343262 
               C1564.503540,2054.343262 1548.587646,2054.343262 1531.896851,2054.638184 
             z"></path>
-            <path id="dad_west" fill="#DAE8BA" opacity="1.000000" stroke="none" d="
+                    <path id="Dadiangas West" fill="#9932CC" opacity="1.000000" stroke="none" d="
             M1473.396729,2132.822021 
               C1468.719604,2137.411377 1464.278320,2141.704834 1459.478760,2146.540283 
               C1457.208374,2147.433105 1455.296265,2147.783936 1452.022095,2148.186768 
@@ -1356,7 +1114,7 @@ $conn->close();
               C1477.207397,2130.797852 1475.721802,2131.433838 1474.236084,2132.069824 
               C1474.236084,2132.069580 1473.632568,2132.526123 1473.396729,2132.822021 
             z"></path>
-            <path id="dad_south" fill="#EBCFC4" opacity="1.000000" stroke="none" d="
+                    <path id="Dadiangas South" fill="#8B4513" opacity="1.000000" stroke="none" d="
             M1599.465454,2119.375000 
               C1599.668945,2122.292725 1599.368652,2124.531738 1598.931519,2127.790527 
               C1593.080322,2127.790527 1587.506592,2127.790527 1580.531494,2127.457764 
@@ -1376,7 +1134,7 @@ $conn->close();
               C1597.782715,2077.088623 1597.655396,2093.036377 1597.757080,2108.982422 
               C1597.777710,2112.222900 1598.540771,2115.458252 1599.465454,2119.375000 
             z"></path>
-            <path id="labangal" fill="#ECCFC4" opacity="1.000000" stroke="none" d="
+                    <path id="Labangal" fill="#00CED1" opacity="1.000000" stroke="none" d="
             M1384.967773,2206.437256 
               C1384.344971,2206.574707 1384.103516,2206.803711 1383.360840,2207.697754 
               C1380.493652,2211.323975 1378.113770,2214.194824 1376.605225,2217.467285 
@@ -1459,7 +1217,7 @@ $conn->close();
               C1396.190186,2196.203857 1394.311035,2194.153809 1392.780273,2194.387207 
               C1386.769287,2195.303955 1384.769775,2198.777832 1384.967773,2206.437256 
             z"></path>
-            <path id="apopong" fill="#F4E5B7" opacity="1.000000" stroke="none" d="
+                    <path id="Apopong" fill="#8B668B" opacity="1.000000" stroke="none" d="
             M987.778564,1579.102173 
               C992.088623,1579.261230 996.398621,1579.555908 1000.708740,1579.558594 
               C1052.544556,1579.590698 1104.380615,1579.631714 1156.216187,1579.533569 
@@ -1536,7 +1294,7 @@ $conn->close();
               C985.816284,1579.948853 985.966858,1579.946289 986.446106,1579.785889 
               C987.209717,1579.450928 987.494141,1579.276611 987.778564,1579.102173 
             z"></path>
-            <path id="sinawal" fill="#D8DFF1" opacity="1.000000" stroke="none" d="
+                    <path id="Sinawal" fill="#8B0000" opacity="1.000000" stroke="none" d="
             M160.953125,2112.774414 
               C160.902847,2027.295654 160.852570,1941.816895 161.405121,1855.441528 
               C162.273636,1852.612061 162.539352,1850.679199 162.805054,1848.746338 
@@ -1587,7 +1345,7 @@ $conn->close();
               C166.000031,2114.000000 166.009537,2113.987305 165.452576,2113.540039 
               C163.581451,2112.986572 162.267288,2112.880371 160.953125,2112.774414 
             z"></path>
-            <path id="san_jose" fill="#DBE9BB" opacity="1.000000" stroke="none" d="
+                    <path id="San Jose" fill="#228B22" opacity="1.000000" stroke="none" d="
             M164.063828,3154.913574 
               C163.985657,3117.276123 164.024643,3079.637939 163.797852,3042.001465 
               C163.549057,3000.713135 163.055176,2959.426758 163.265137,2916.564941 
@@ -1637,7 +1395,7 @@ $conn->close();
               C243.458618,3177.877686 204.813187,3177.777832 166.149780,3176.768066 
               C165.442505,3168.872803 164.753159,3161.893311 164.063828,3154.913574 
             z"></path>
-            <path id="fatima" fill="#D8DFF1" opacity="1.000000" stroke="none" d="
+                    <path id="Fatima" fill="#483D8B" opacity="1.000000" stroke="none" d="
             M414.918762,2724.963623 
               C437.644073,2676.016602 467.644470,2632.325684 497.566193,2588.613770 
               C502.323822,2581.663330 504.302948,2574.723389 504.249329,2566.342285 
@@ -1703,7 +1461,7 @@ $conn->close();
               C376.606964,2815.572754 372.781097,2815.968506 366.905762,2816.607178 
               C383.436340,2785.028076 398.990570,2755.314209 414.918762,2724.963623 
             z"></path>
-            <path id="calumpang" fill="#FCF9B5" opacity="1.000000" stroke="none" d="
+                    <path id="Calumpang" fill="#2F4F4F" opacity="1.000000" stroke="none" d="
             M1319.691162,2326.964355 
               C1319.809204,2328.563721 1319.927246,2330.163086 1319.557129,2333.110840 
               C1319.146484,2335.055908 1319.223877,2335.652100 1319.227295,2336.543945 
@@ -1759,7 +1517,7 @@ $conn->close();
               C1317.546265,2309.387207 1317.695679,2309.825928 1317.298584,2311.431641 
               C1316.442993,2317.636719 1315.701782,2322.771240 1319.691162,2326.964355 
             z"></path>
-            <path id="tambler" fill="#DCCEE4" opacity="1.000000" stroke="none" d="
+                    <path id="Tambler" fill="#B8860B" opacity="1.000000" stroke="none" d="
             M1309.465820,2592.622314 
               C1306.851440,2592.622314 1304.237061,2592.622314 1299.922119,2592.622314 
               C1303.887573,2595.214844 1306.537598,2596.947266 1308.812256,2598.434570 
@@ -1888,7 +1646,7 @@ $conn->close();
               C1308.358398,2587.401855 1309.434448,2588.570801 1310.353760,2590.750977 
               C1309.953247,2592.049072 1309.709595,2592.335693 1309.465820,2592.622314 
             z"></path>
-            <path id="siguel" fill="#FDFAB5" opacity="1.000000" stroke="none" d="
+                    <path id="Siguel" fill="#8B4513" opacity="1.000000" stroke="none" d="
             M164.721039,3655.170898 
               C164.660370,3619.581299 164.576813,3583.991699 164.544220,3548.402100 
               C164.490341,3489.544922 164.478439,3430.687500 164.431961,3371.830322 
@@ -1986,185 +1744,153 @@ $conn->close();
               C164.751877,3722.766602 164.542374,3696.049561 164.952805,3667.838867 
               C165.288834,3662.620117 165.004944,3658.895508 164.721039,3655.170898 
             z"></path>
-          </g>
-        </svg>
+                </g>
+            </svg>
 
-      </div>
-      <script>
-        const paths = document.querySelectorAll('.svg-container svg path');
-        const hoverInfo = document.querySelector('.hover-info');
-
-
-        // Object containing texts for each path
-        const pathInfo = {
-          upper_labay: {
-            title: "Upper Labay",
-            description: "Description"
-          },
-          batomelong: {
-            title: "Batomelong",
-            description: "Description"
-          },
-          olympog: {
-            title: "Olympog",
-            description: "Description"
-          },
-          conel: {
-            title: "Conel",
-            description: "Description"
-          },
-          mabuhay: {
-            title: "Mabuhay",
-            description: "Description"
-          },
-          tinagacan: {
-            title: "Tinagacan",
-            description: "Description"
-          },
-          katangawan: {
-            title: "Katangawan",
-            description: "Description"
-          },
-          ligaya: {
-            title: "Ligaya",
-            description: "Description"
-          },
-          buayan: {
-            title: "Buayan",
-            description: "Description"
-          },
-          baluan: {
-            title: "Baluan",
-            description: "Description"
-          },
-          bula: {
-            title: "Bula",
-            description: "Description"
-          },
-          lagao: {
-            title: "Lagao",
-            description: "Description"
-          },
-          san_isidro: {
-            title: "San Isidro",
-            description: "Description"
-          },
-          city_heights: {
-            title: "City Heights",
-            description: "Description"
-          },
-          dad_north: {
-            title: "Dadiangas North",
-            description: "Description"
-          },
-          dad_east: {
-            title: "Dadiangas East",
-            description: "Description"
-          },
-          dad_west: {
-            title: "Dadiangas West",
-            description: "Description"
-          },
-          dad_south: {
-            title: "Dadiangas South",
-            description: "Description"
-          },
-          labangal: {
-            title: "Labangal",
-            description: "Description"
-          },
-          apopong: {
-            title: "Apopong",
-            description: "Description"
-          },
-          sinawal: {
-            title: "Sinawal",
-            description: "Description"
-          },
-          san_jose: {
-            title: "San Jose",
-            description: "Description"
-          },
-          fatima: {
-            title: "Fatima",
-            description: "Description"
-          },
-          calumpang: {
-            title: "Calumpang",
-            description: "Description"
-          },
-          tambler: {
-            title: "Tambler",
-            description: "Description"
-          },
-          siguel: {
-            title: "Siguel",
-            description: "Description"
-          },
-        };
-
-
-        paths.forEach((path) => {
-          path.addEventListener('mouseenter', (event) => {
-            const pathId = event.target.getAttribute('id');
-            const pathBounds = event.target.getBoundingClientRect();
-
-            hoverInfo.innerHTML = `
-              <h2 class="infoTitle">${pathInfo[pathId].title}</h2>
-              <p class="infoDesc">${pathInfo[pathId].description}</p>
-            `;
-
-            hoverInfo.style.display = 'block';
-            hoverInfo.style.top = `${pathBounds.top + window.scrollY - hoverInfo.offsetHeight}px`;
-            hoverInfo.style.left = `${pathBounds.left}px`;
-          });
-
-          path.addEventListener('mouseleave', () => {
-            hoverInfo.style.display = 'none';
-          });
-        });
-      </script>
-
-      
-      <div id="overlay">
-        <div id="popup">
-          <form class="form" method="POST">
-            <p class="title">Add Report</p>
-            <p class="message">Fill Up the necessary information needed</p>           
-
-            <label>
-              <input id="location" name="location" placeholder="" type="text" class="input" />
-              <span>Location</span>
-            </label>
-            
-            <label>
-              <input id="barangay" name="barangay" placeholder="" type="text" class="input"/>
-              <span>Barangay</span>
-            </label>
-
-            <label>
-              <input id="time" name="time" placeholder="" type="time" class="input" />
-              <span>Time</span>
-            </label>
-            <label for="choices">Possible Cause:</label>
-              <div class="custom-dropdown">
-                <select id="choices" name="choices" class="input">
-                    <option value="Electrical Issue">Electrical Issue</option>
-                    <option value="Natural Causes">Natural Causes</option>
-                    <option value="Arson">Arson</option>
-                    <option value="Human Error">Human Error</option>
-                    <option value="Equipment Malfunction">Equipment Malfunction</option>
-                </select>
-                <div class="dropdown-list"></div>
-              </div>
-            <button id="sumbit" class="submit">Submit</button>
-          </form>
-          <form class="form">
-          <button class="cancel" onclick="closePopup()">Cancel</button>
-          </form>
-            
         </div>
-      </div>
+        <script>
+            const paths = document.querySelectorAll('.svg-container svg path');
+            const hoverInfo = document.querySelector('.hover-info');
+
+            // Dynamic PHP script to generate pathInfo
+            <?php
+            // Your database connection code here
+            $pdo = new PDO("mysql:host=localhost;dbname=4402151_alert", "root", "");
+
+            $sql = "SELECT barangay, COUNT(*) AS occurrence_count FROM incident_data GROUP BY barangay";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $data = [];
+
+            foreach ($results as $row) {
+                $barangay = $row['barangay'];
+                $count = $row['occurrence_count'];
+
+                // You may customize the description as per your requirements
+                $description = "Recorded Fire Outbreaks: $count";
+
+                $data[$barangay] = [
+                    'title' => ucfirst($barangay),
+                    'description' => $description,
+                ];
+            }
+
+            $jsonData = json_encode($data, JSON_PRETTY_PRINT);
+            echo "const pathInfo = $jsonData;";
+            ?>
+
+            paths.forEach((path) => {
+                path.addEventListener('mouseenter', (event) => {
+                    const pathId = event.target.getAttribute('id');
+
+                    const pathBounds = event.target.getBoundingClientRect();
+
+                    // Check if pathId exists in pathInfo before accessing its properties
+                    if (pathInfo[pathId]) {
+                        hoverInfo.innerHTML = `
+                    <h2 class="infoTitle">${pathInfo[pathId].title}</h2>
+                    <p class="infoDesc">${pathInfo[pathId].description}</p>
+                `;
+                    } else {
+                        hoverInfo.innerHTML = `
+                    <h2 class="infoTitle">${pathId}</h2>
+                    <p class="infoDesc">No Saved Record</p>`;
+                    }
+
+                    hoverInfo.style.display = 'block';
+                    hoverInfo.style.top = `${pathBounds.top + window.scrollY - hoverInfo.offsetHeight}px`;
+                    hoverInfo.style.left = `${pathBounds.left}px`;
+                });
+
+                path.addEventListener('mouseleave', () => {
+                    hoverInfo.style.display = 'none';
+                });
+            });
+        </script>
+
+    <div class="barchart" id="linechart">
+              <canvas id="fireOccurrencesChart" width="800" height="400"></canvas>
+    </div>
+    <script src="js/chart.js"></script>
+
+
+        <div id="overlay">
+            <div id="popup">
+                <form class="form" method="POST">
+                    <p class="title">Add Report</p>
+                    <p class="message">Fill Up the necessary information needed</p>
+                    <label>
+                        <input id="location" name="location" placeholder="" type="text" class="input" />
+                        <span>Location</span>
+                    </label>
+                    <label for="choices">
+                        <div class="custom-dropdown">
+                            <select id="barangay" name="barangay" class="input">
+                                <option value="">----------Select barangay----------</option>
+                                <option value="Apopong">Apopong</option>
+                                <option value="Baluan">Baluan</option>
+                                <option value="Batomelong">Batomelong</option>
+                                <option value="Buayan">Buayan</option>
+                                <option value="Bula">Bula</option>
+                                <option value="Calumpang">Calumpang</option>
+                                <option value="City Heights">City Heights</option>
+                                <option value="Conel">Conel</option>
+                                <option value="Dadiangas East">Dadiangas East</option>
+                                <option value="Dadiangas North">Dadiangas North</option>
+                                <option value="Dadiangas South">Dadiangas South</option>
+                                <option value="Dadiangas West">Dadiangas West</option>
+                                <option value="Fatima">Fatima</option>
+                                <option value="Katangawan">Katangawan</option>
+                                <option value="Labangal">Labangal</option>
+                                <option value="Lagao">Lagao</option>
+                                <option value="Ligaya">Ligaya</option>
+                                <option value="Mabuhay">Mabuhay</option>
+                                <option value="Olympog">Olympog</option>
+                                <option value="San Isidro">San Isidro</option>
+                                <option value="San Jose">San Jose</option>
+                                <option value="Siguel">Siguel</option>
+                                <option value="Sinawal">Sinawal</option>
+                                <option value="Tambler">Tambler</option>
+                                <option value="Tinagacan">Tinagacan</option>
+                                <option value="Upper Labay">Upper Labay</option>
+                            </select>
+                            <span>Barangay</span>
+                            <div class="dropdown-list"></div>
+                        </div>
+                    </label>
+                    <label>
+                        <input id="date" name="date" placeholder="" type="date" class="input" />
+                        <span>Date</span>
+                    </label>
+                    <label>
+                        <input id="time" name="time" placeholder="" type="time" class="input" />
+                        <span>Time</span>
+                    </label>
+                    <label for="choices">
+                        <div class="custom-dropdown">
+                            <select id="choices" name="choices" class="input">
+                                <option value="">----------Possible Cause----------</option>
+                                <option value="Electrical Issue">Electrical Issue</option>
+                                <option value="Natural Causes">Natural Causes</option>
+                                <option value="Arson">Arson</option>
+                                <option value="Human Error">Human Error</option>
+                                <option value="Equipment Malfunction">Equipment Malfunction</option>
+                            </select>
+                            <span>Cause</span>
+
+                            <div class="dropdown-list"></div>
+                        </div>
+                    </label>
+                    <button id="submit" class="submit">Submit</button>
+                </form>
+                <form class="form">
+                    <button class="cancel" id="cancel" onclick="closePopup()">Cancel</button>
+                </form>
+            </div>
+        </div>
     </section>
-  </body>
+</body>
+
 </html>
