@@ -1,6 +1,6 @@
 <?php
 // Check if the form is submitted
-if(isset($_GET['latitude']) && isset($_GET['longitude'])) {
+if (isset($_GET['latitude']) && isset($_GET['longitude'])) {
     // Get user input
     $latitude = $_GET['latitude'];
     $longitude = $_GET['longitude'];

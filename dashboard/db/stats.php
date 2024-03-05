@@ -101,8 +101,8 @@ if ($result->num_rows > 0) {
         if (in_array($month, $months)) {
             $monthIndex = array_search($month, $months);
             $fireOccurrencesData[$barangay][$monthIndex] = $count;
+        }
     }
-}
 }
 // Close database connection
 $conn->close();
@@ -127,5 +127,5 @@ $dataJSON = json_encode($data);
 ?>
 
 <script>
-var fireOccurrencesData = <?php echo $dataJSON; ?>;
+    var fireOccurrencesData = <?php echo $dataJSON; ?>;
 </script>
