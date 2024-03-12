@@ -20,6 +20,7 @@ include "db/stats.php";
   <meta charset="utf-8" />
   <script src="./js/popup.js"></script>
   <script src="./js/download.js"></script>
+  <script src="js/previewMap.js"></script>
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="stylesheet" href="./css/reportForm.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -30,7 +31,6 @@ include "db/stats.php";
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="js/previewMap.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
 </head>
 
@@ -122,10 +122,6 @@ include "db/stats.php";
         <form class="form" id="form" method="POST">
           <p class="title">Add Report</p>
           <p class="message">Fill Up the necessary information needed</p>
-          <label>
-            <input id="location" name="location" placeholder="" type="text" class="input" required />
-            <span>Location</span>
-          </label>
           <label for="choices">
             <div class="custom-dropdown">
               <select id="barangay" name="barangay" class="input" required>
@@ -160,6 +156,10 @@ include "db/stats.php";
               <span>Barangay</span>
               <div class="dropdown-list"></div>
             </div>
+          </label>
+          <label>
+            <input id="location" name="location" placeholder="" type="text" class="input" required />
+            <span>Location</span>
           </label>
           <label>
             <input id="date" name="date" placeholder="" type="text" class="input" onfocus="(this.type='date')"

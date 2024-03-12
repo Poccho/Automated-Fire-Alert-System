@@ -19,6 +19,10 @@ function closePopup() {
   });
 }
 
+function closePopupDetails() {
+      document.getElementById("overlay").style.display = "none";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("submitBtn")

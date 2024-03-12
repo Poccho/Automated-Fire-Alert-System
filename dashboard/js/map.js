@@ -24,31 +24,26 @@ const alternateTileLayer = addTileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
 );
 
+
+// Variable to keep track of the current active layer
+let currentTileLayer = initialTileLayer;
+
 // Function to switch between tile layers
 function switchTileLayer() {
-  if (map.hasLayer(initialTileLayer)) {
+  if (currentTileLayer === initialTileLayer) {
     map.removeLayer(initialTileLayer);
     map.addLayer(alternateTileLayer);
+    currentTileLayer = alternateTileLayer; // Update the current active layer
   } else {
     map.removeLayer(alternateTileLayer);
     map.addLayer(initialTileLayer);
+    currentTileLayer = initialTileLayer; // Update the current active layer
   }
 }
 
-// Event listener for switching tile layers
-document
-  .getElementById("switch-layers")
-  .addEventListener("click", switchTileLayer);
 
 // Display coordinates on marker click
-marker.on("click", function (e) {
-  displayCoordinates(e.latlng);
-});
 
-// Close coordinates card when clicked outside
-map.on("click", function () {
-  hideCoordinatesCard();
-});
 
 // Function to create custom icon
 function createIcon(iconUrl, iconSize) {
@@ -70,16 +65,6 @@ function displayCoordinates(latlng) {
   const coordinatesInfo = document.getElementById("coordinates-info");
   coordinatesInfo.textContent = `Latitude: ${latlng.lat}, Longitude: ${latlng.lng}`;
   showCoordinatesCard();
-}
-
-// Function to show coordinates card
-function showCoordinatesCard() {
-  document.getElementById("coordinates-card").style.display = "block";
-}
-
-// Function to hide coordinates card
-function hideCoordinatesCard() {
-  document.getElementById("coordinates-card").style.display = "none";
 }
 
 // Add Fullscreen control to map

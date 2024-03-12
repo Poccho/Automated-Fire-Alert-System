@@ -95,7 +95,7 @@ a:hover {
     left: -100%;
     text-align: center;
     transition: all 0.5s;
-    z-index: 5;
+    z-index: 999999;
   }
   nav ul li {
     display: block;
@@ -120,11 +120,14 @@ a:hover {
 }
 
 #map {
+  position: relative;
   display: inline-block;
   width: 72%;
   height: 87.5vh;
   flex: 1;
 }
+
+
 
 i[class="fa-solid fa-repeat fa-beat fa-xs"] {
   float: left;
@@ -233,7 +236,7 @@ td {
   padding: 10px;
 }
 
-.leaflet-top .leaflet-right {
+.leaflet-routing-container {
   visibility: hidden;
 }
 
@@ -587,3 +590,17 @@ th {
   font-family: "Poppins", sans-serif;
   font-size: medium;
 }
+
+
+.leaflet-interactive.pulsating-circle {
+  animation: pulsate 1s ease-out infinite;
+}
+
+@keyframes pulsate {
+  0% { opacity: 0.5; }
+  25% { opacity: 1; }
+  50% { opacity: 1.5; }
+  75% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+

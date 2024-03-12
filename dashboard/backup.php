@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 <html>
 
 <head>
+    <!-- Your head content remains unchanged -->
 </head>
 
 <body>
@@ -56,12 +57,12 @@ if (!isset($_SESSION['user_id'])) {
             ?>
         </tbody>
     </table>
-
     <script>
         let routes = []; // Store routes for each set of coordinates
+        let permanentHighlight = [];
+
+        // FUNCTIUON FOR PINNING LOCATIONS
         function pinLocation(latitude, longitude) {
-            var div = document.getElementById("eta");
-            div.style.display = "flex"; // Show the div
             let existingRoute = findRoute(latitude, longitude);
             if (existingRoute) {
                 // Route already exists, just set the map view and highlight the table cells
@@ -70,8 +71,6 @@ if (!isset($_SESSION['user_id'])) {
                 // Route doesn't exist, create a new one
                 let route = L.Routing.control({
                     waypoints: [L.latLng(6.073838, 125.115167), L.latLng(latitude, longitude)],
-                    draggableWaypoints: false, // Disable dragging of waypoints
-                    addWaypoints: false // Disable adding new waypoints
                 }).addTo(map);
                 let circle = L.circle([latitude, longitude], {
                     color: "red",
@@ -88,14 +87,8 @@ if (!isset($_SESSION['user_id'])) {
                 // Set the map view
                 map.setView([latitude, longitude], 20);
 
-                // Debugging: Log the latitude and longitude values
-                console.log("Latitude:", latitude);
-                console.log("Longitude:", longitude);
             }
         }
-
-
-
 
         function findRoute(latitude, longitude) {
             // Find the route with given coordinates
@@ -103,7 +96,6 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         function remove(latitude, longitude) {
-
             let existingRoute = findRoute(latitude, longitude);
 
             if (existingRoute) {
@@ -188,8 +180,7 @@ if (!isset($_SESSION['user_id'])) {
                 map.removeLayer(routes[indexToDelete].circle);
                 routes.splice(indexToDelete, 1);
                 map.setView([6.073838, 125.115167], 100);
-                L.marker([6.073838, 125.115167], { icon: fireDepartmentIcon }).addTo(map);
-
+                L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(map);
             } else {
                 console.error("Route not found in routes array");
             }
@@ -220,7 +211,7 @@ if (!isset($_SESSION['user_id'])) {
 
                 // Ask for confirmation using SweetAlert
                 Swal.fire({
-                    title: 'Remove Route?',
+                    title: 'Are you sure?',
                     text: "You won't be able to revert this!",
                     icon: 'warning',
                     showCancelButton: true,
@@ -228,14 +219,11 @@ if (!isset($_SESSION['user_id'])) {
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Yes, remove it!'
                 }).then((result) => {
-
-                    var div = document.getElementById("eta");
-                    div.style.display = "none"; // Show the div
                     if (result.isConfirmed) {
                         // Proceed with deletion
                         deleteRoute(latitude, longitude);
                         Swal.fire(
-                            'Route Removed!',
+                            'Deleted!',
                             'Coordinates has been DELETED',
                             'success'
                         )
@@ -252,7 +240,6 @@ if (!isset($_SESSION['user_id'])) {
         };
 
     </script>
-
 
 </body>
 

@@ -31,7 +31,8 @@ if (!isset($_SESSION['user_id'])) {
   <audio id="notificationSound" src="misc\alarmsound.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-  <link rel="stylesheet" href="./css/loader.css">
+  <link rel="stylesheet" href="./css/reportForm.css">
+  <link rel="stylesheet" href="./css/eta.css">
 </head>
 
 <body>
@@ -41,13 +42,16 @@ if (!isset($_SESSION['user_id'])) {
   <section>
     <div class="content">
       <div id="map"></div>
-      <div id="coordinates-card" style="display: none;">
-        <div id="coordinates-content">
-          <h3>Coordinates</h3>
-          <p id="coordinates-info"></p>
-        </div>
-      </div>
+        <div class="eta" id="eta">
+          <p>ETA: </p>
+          <br>
+          <p>ETA: </p>
+          <br>
+          <p>ETA: </p>
+          <br>
+          <p>ETA: </p>
 
+        </div>
       <div class="alarm-content">
         <div class="title-alarm">
           <i class="fa-regular fa-bell fa-xs"></i> Alarms <i class="fa-regular fa-bell fa-xs"></i>
