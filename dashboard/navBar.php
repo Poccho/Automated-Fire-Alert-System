@@ -6,7 +6,7 @@
 <nav>
     <input type="checkbox" id="check" />
     <label for="check" class="checkbtn">
-        <i class="fas fa-bars"></i>
+        <i class="fas fa-bars fa-4xl" style = "margin-top:4vh;"></i>
     </label>
     <label class="logo"><i class="fa-solid fa-house-fire fa-xs"></i> AFAS</label>
     <ul>

@@ -20,7 +20,7 @@ include "db/stats.php";
   <meta charset="utf-8" />
   <script src="./js/popup.js"></script>
   <script src="./js/download.js"></script>
-  <script src="js/previewMap.js"></script>
+  <script src="js/reportMap.js"></script>
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="stylesheet" href="./css/reportForm.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -44,7 +44,8 @@ include "db/stats.php";
 
     <div class="svg-container">
       <!-- Your SVG -->
-      <div class="hover-info"></div>
+      <div class="hover-info" style="background-color:white; border-radius:10px; box-shadow: 0 6px 12px rgba(0, 0, 0, 1);"></div>
+
       <?php
       include "db/gscMap.php";
       ?>
@@ -58,7 +59,16 @@ include "db/stats.php";
       // Your database connection code here
       $pdo = new PDO("mysql:host=localhost;dbname=4402151_alert", "root", "");
 
-      $sql = "SELECT barangay, COUNT(*) AS occurrence_count FROM incident_data GROUP BY barangay";
+      $sql = "SELECT 
+      b.barangay_name AS barangay,
+      COUNT(*) AS occurrence_count 
+  FROM 
+      incident_data AS i
+  JOIN 
+      barangay AS b ON i.barangay_code = b.barangay_code
+  GROUP BY 
+      b.barangay_code;
+  ";
       $stmt = $pdo->prepare($sql);
       $stmt->execute();
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -91,13 +101,13 @@ include "db/stats.php";
           // Check if pathId exists in pathInfo before accessing its properties
           if (pathInfo[pathId]) {
             hoverInfo.innerHTML = `
-                    <h2 class="infoTitle">${pathInfo[pathId].title}</h2>
-                    <p class="infoDesc">${pathInfo[pathId].description}</p>
+                    <h2 class="infoTitle" style="color:black;">${pathInfo[pathId].title}</h2>
+                    <p class="infoDesc" style="color:black;">${pathInfo[pathId].description}</p>
                 `;
           } else {
             hoverInfo.innerHTML = `
-                    <h2 class="infoTitle">${pathId}</h2>
-                    <p class="infoDesc">No Saved Record</p>`;
+                    <h2 class="infoTitle" style="color:black;">${pathId}</h2>
+                    <p class="infoDesc" style="color:black;">No Saved Record</p>`;
           }
 
           hoverInfo.style.display = 'block';
@@ -157,10 +167,16 @@ include "db/stats.php";
               <div class="dropdown-list"></div>
             </div>
           </label>
-          <label>
-            <input id="location" name="location" placeholder="" type="text" class="input" required />
-            <span>Location</span>
-          </label>
+          <div style="display: flex;">
+            <label style="flex: 1;">
+              <input id="latitude" name="latitude" placeholder="" type="text" class="input" required />
+              <span>Latitude</span>
+            </label>
+            <label style="flex: 1;">
+              <input id="longitude" name="longitude" placeholder="" type="text" class="input" required />
+              <span>Longitude</span>
+            </label>
+          </div>
           <label>
             <input id="date" name="date" placeholder="" type="text" class="input" onfocus="(this.type='date')"
               onblur="(this.type='text')" required />
@@ -195,7 +211,7 @@ include "db/stats.php";
       <div class="previewMap">
         <div id="previewMap">
         </div>
-    </div>
+      </div>
     </div>
   </section>
 </body>

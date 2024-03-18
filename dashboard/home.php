@@ -41,17 +41,11 @@ if (!isset($_SESSION['user_id'])) {
   ?>
   <section>
     <div class="content">
-      <div id="map"></div>
-        <div class="eta" id="eta">
-          <p>ETA: </p>
-          <br>
-          <p>ETA: </p>
-          <br>
-          <p>ETA: </p>
-          <br>
-          <p>ETA: </p>
-
+      <div id="map">
+        <div id="eta-container">
+        
         </div>
+      </div>
       <div class="alarm-content">
         <div class="title-alarm">
           <i class="fa-regular fa-bell fa-xs"></i> Alarms <i class="fa-regular fa-bell fa-xs"></i>

@@ -2,11 +2,11 @@ function openPopup() {
   var div = document.getElementById("overlay");
   div.style.display = "flex"; // Show the div
 }
-
+ 
 function closePopup() {
   Swal.fire({
     title: "Are you sure?",
-    text: "You will lose any unsaved changes!",
+    text: "You will LOSE any UNSAVED CHANGES!",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",

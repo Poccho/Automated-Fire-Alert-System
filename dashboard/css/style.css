@@ -85,6 +85,10 @@ a:hover {
 @media (max-width: 858px) {
   .checkbtn {
     display: block;
+    
+  }
+  .check{
+    margin-top: 400px;
   }
   ul {
     position: fixed;

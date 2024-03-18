@@ -37,42 +37,75 @@ if (!isset($_SESSION['user_id'])) {
   </div>
 
   <section class="charts">
-    <div class="history">
-      <table id="dataTable">
-        <thead id="thead">
-          <tr>
-            <th id="th">Barangay</th>
-            <th id="th">Cause</th>
-            <th id="th">Time</th>
-            <th id="th">Coordinates</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php
-          include "db/connection.php";
+  <div class="history">
+  <table id="dataTable">
+    <thead id="thead">
+      <tr>
+        <th id="th">Barangay</th>
+        <th id="th">Cause</th>
+        <th id="th">Time</th>
+        <th id="th">Coordinates</th>
+      </tr>
+    </thead>
+    <tbody><?php
+include "db/connection.php";
 
-          // Fetch data from the database
-          $sql = "SELECT * FROM incident_data";
-          $result = $conn->query($sql);
+// Define the number of records per page
+$recordsPerPage = 10;
+$currentPage = isset($_GET['page']) ? $_GET['page'] : 1;
+$offset = ($currentPage - 1) * $recordsPerPage;
 
-          if ($result && $result->num_rows > 0) {
-            // Output data of each row
-            while ($row = $result->fetch_assoc()) {
-              echo "<tr onclick='openPopup(\"" . $row["barangay"] . "\", \"" . $row["cause"] . "\", \"" . $row["time"] . "\", \"" . addslashes($row["coordinates"]) . "\")'>";
-              echo "<td>" . $row["barangay"] . "</td>";
-              echo "<td>" . $row["cause"] . "</td>";
-              echo "<td>" . $row["time"] . "</td>";
-              echo "<td>" . $row["coordinates"] . "</td>";
-              echo "</tr>";
-            }
-          } else {
-            echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
-          }
-          $conn->close();
-          ?>
-        </tbody>
-      </table>
-    </div>
+// Fetch data from the database with pagination
+$sql = "SELECT 
+            i.*, 
+            b.barangay_name
+        FROM 
+            incident_data AS i
+        JOIN 
+            barangay AS b ON i.barangay_code = b.barangay_code
+        LIMIT $offset, $recordsPerPage";
+$result = $conn->query($sql);
+
+if ($result) {
+    if ($result->num_rows > 0) {
+        // Output data of each row
+        while ($row = $result->fetch_assoc()) {
+            $coordinates = $row["latitude"] . ", " . $row["longitude"];
+            echo "<tr onclick='openPopup(\"" . $row["barangay_name"] . "\", \"" . $row["cause"] . "\", \"" . $row["time"] . "\", \"" . addslashes($coordinates) . "\")'>";
+            echo "<td>" . $row["barangay_name"] . "</td>";
+            echo "<td>" . $row["cause"] . "</td>";
+            echo "<td>" . $row["time"] . "</td>";
+            echo "<td>" . $coordinates . "</td>";
+            echo "</tr>";
+        }
+
+        // Pagination links
+        $sqlCount = "SELECT COUNT(*) AS total FROM incident_data";
+        $resultCount = $conn->query($sqlCount);
+        $row = $resultCount->fetch_assoc();
+        $totalPages = ceil($row["total"] / $recordsPerPage);
+
+        echo "<tr><td colspan='4' style='text-align: center;'>";
+        for ($i = 1; $i <= $totalPages; $i++) {
+            echo "<a href='?page=$i'>$i</a> ";
+        }
+        echo "</td></tr>";
+    } else {
+        echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
+    }
+} else {
+    echo "Error: " . $conn->error;
+    echo "<br>Query: " . $sql;
+}
+
+$conn->close();
+?>
+
+    </tbody>
+  </table>
+</div>
+
+
 
     <div id="overlay">
       <div id="popup" class="reportForm">

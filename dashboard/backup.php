@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id'])) {
 <html>
 
 <head>
-    <!-- Your head content remains unchanged -->
 </head>
 
 <body>
@@ -57,38 +56,82 @@ if (!isset($_SESSION['user_id'])) {
             ?>
         </tbody>
     </table>
+
     <script>
         let routes = []; // Store routes for each set of coordinates
-        let permanentHighlight = [];
-
-        // FUNCTIUON FOR PINNING LOCATIONS
         function pinLocation(latitude, longitude) {
-            let existingRoute = findRoute(latitude, longitude);
-            if (existingRoute) {
-                // Route already exists, just set the map view and highlight the table cells
-                map.setView([latitude, longitude], 20);
-            } else {
-                // Route doesn't exist, create a new one
-                let route = L.Routing.control({
-                    waypoints: [L.latLng(6.073838, 125.115167), L.latLng(latitude, longitude)],
-                }).addTo(map);
-                let circle = L.circle([latitude, longitude], {
-                    color: "red",
-                    fillColor: "#f03",
-                    fillOpacity: 0.5,
-                    radius: 50,
-                }).addTo(map);
+    var etaContainer = document.getElementById("eta-container");
+    var div = document.createElement("div");
+    div.classList.add("eta");
+    div.classList.add(`${latitude}-${longitude}`); // Adding latitude and longitude as class
+    div.innerHTML = `<p>Latitude: ${latitude}, Longitude: ${longitude}</p><p>ETA: <strong><span id='eta-value'></span></strong></p>`;
+    etaContainer.appendChild(div); // Append ETA div to container
 
-                circle._path.classList.add("pulsating-circle");
-
-                // Store the route with corresponding coordinates
-                routes.push({ latitude, longitude, route, circle });
-
-                // Set the map view
-                map.setView([latitude, longitude], 20);
-
+    let existingRoute = findRoute(latitude, longitude);
+    if (existingRoute) {
+        // Route already exists, just set the map view and highlight the table cells
+        map.setView([latitude, longitude], 20);
+        // Calculate and update ETA
+        calculateAndUpdateETA(existingRoute);
+    } else {
+        // Route doesn't exist, create a new one
+        let route = L.Routing.control({
+            waypoints: [L.latLng(6.073838, 125.115167), L.latLng(latitude, longitude)],
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1',
+                profile: 'car' // You can change this based on your vehicle type
+            }),
+            draggableWaypoints: false, // Disable dragging of waypoints
+            addWaypoints: false, // Disable adding new waypoints
+            lineOptions: {
+                styles: [{color: 'red', opacity: 0.6, weight: 4}]
             }
+        }).addTo(map);
+
+        let circle = L.circle([latitude, longitude], {
+            color: "red",
+            fillColor: "#f03",
+            fillOpacity: 0.5,
+            radius: 50,
+        }).addTo(map);
+
+        circle._path.classList.add("pulsating-circle");
+
+        // Store the route with corresponding coordinates
+        routes.push({ latitude, longitude, route, circle });
+
+        // Set the map view
+        map.setView([latitude, longitude], 20);
+
+        // Calculate and update ETA
+        calculateAndUpdateETA(route);
+
+        // Debugging: Log the latitude and longitude values
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+    }
+}
+
+function calculateAndUpdateETA(routeControl) {
+    routeControl.on('routesfound', function(e) {
+        var routes = e.routes;
+        if (routes && routes.length > 0) {
+            var eta = routes[0].summary.totalTime; // Total time in seconds
+            var etaSpan = document.getElementById("eta-value");
+            etaSpan.textContent = formatETA(eta);
         }
+    });
+}
+
+function formatETA(seconds) {
+    var hours = Math.floor(seconds / 3600);
+    var minutes = Math.floor((seconds % 3600) / 60);
+    return hours + "h " + minutes + "m";
+}
+
+
+
+
 
         function findRoute(latitude, longitude) {
             // Find the route with given coordinates
@@ -96,6 +139,7 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         function remove(latitude, longitude) {
+
             let existingRoute = findRoute(latitude, longitude);
 
             if (existingRoute) {
@@ -180,7 +224,8 @@ if (!isset($_SESSION['user_id'])) {
                 map.removeLayer(routes[indexToDelete].circle);
                 routes.splice(indexToDelete, 1);
                 map.setView([6.073838, 125.115167], 100);
-                L.marker([6.073838, 125.115167], { icon: fireDepartment }).addTo(map);
+                L.marker([6.073838, 125.115167], { icon: fireDepartmentIcon }).addTo(map);
+
             } else {
                 console.error("Route not found in routes array");
             }
@@ -203,36 +248,59 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         function removeRoute(latitude, longitude) {
-            let existingRoute = findRoute(latitude, longitude);
+    let existingRoute = findRoute(latitude, longitude);
 
-            if (existingRoute) {
-                // Set the map view to the coordinates before showing the confirmation alert
-                map.setView([latitude, longitude], 20);
+    if (existingRoute) {
+        // Set the map view to the coordinates before showing the confirmation alert
+        map.setView([latitude, longitude], 20);
 
-                // Ask for confirmation using SweetAlert
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, remove it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Proceed with deletion
-                        deleteRoute(latitude, longitude);
-                        Swal.fire(
-                            'Deleted!',
-                            'Coordinates has been DELETED',
-                            'success'
-                        )
-                    }
-                });
-            } else {
-                console.warn("Route not found, unable to remove from the map");
+        // Ask for confirmation using SweetAlert
+        Swal.fire({
+            title: 'Remove Route?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Proceed with deletion
+                deleteRoute(latitude, longitude);
+
+                // Log the constructed class name
+                var etaClass = `eta ${latitude}-${longitude}`;
+                console.log("ETA Class:", etaClass);
+
+                // Remove ETA
+                console.log("Removing ETA...");
+                removeETA(latitude, longitude); // Ensure that removeETA is called
+                Swal.fire(
+                    'Route Removed!',
+                    'Coordinates has been DELETED',
+                    'success'
+                )
             }
-        }
+        });
+    } else {
+        console.warn("Route not found, unable to remove from the map");
+    }
+}
+
+
+function removeETA(latitude, longitude) {
+    var etaClass = `eta ${latitude}-${longitude}`;
+    var etaElements = document.getElementsByClassName(etaClass);
+    if (etaElements.length > 0) {
+        etaElements[0].remove(); // Remove the first found ETA element from the DOM
+        console.log("ETA Removed!"); // Logging confirmation of removal
+    } else {
+        console.log("ETA Element not found!"); // Logging if the element is not found
+    }
+}
+
+
+
 
         window.onload = function () {
             // Call your function here
@@ -240,6 +308,7 @@ if (!isset($_SESSION['user_id'])) {
         };
 
     </script>
+
 
 </body>
 
