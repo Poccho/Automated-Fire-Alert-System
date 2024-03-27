@@ -1,11 +1,25 @@
+#map {
+  position: relative;
+}
+
 .eta {
-    display: block;
-    position: absolute;
-    top: 0; /* Adjust as needed */
-    right: 0;
-    background-color: rgba(255, 255, 255, 0.8); /* Adjust opacity as needed */
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    z-index: 1000; /* Make sure the overlay appears above other elements */
-  }
+  display: block;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.eta + .eta {
+  margin-top: 10px; /* Add space between .eta divs */
+}
+
+#eta-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 18vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2vh;
+}

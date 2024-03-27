@@ -1,0 +1,57 @@
+form {
+    margin: 0 auto; /* Center the form horizontally */
+    text-align: left; /* Center the form elements */
+    background-color: #fff; /* White background */
+    padding: 10px; /* Add some padding for spacing */
+    width: 100%; /* Make the form width fit its content */
+}
+
+label {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+select, input[type="text"] {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc; /* Add border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #fff; /* White background */
+}
+
+button {
+    padding: 8px 15px;
+    background-color: #cc3333; /* Darker red for button */
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+}
+
+button:hover {
+    background-color: #b32424; /* Darker shade of red on hover */
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+th {
+    background-color: #cc3333; /* Darker red for table header */
+    color: #fff;
+}
+tr:nth-child(even) {
+    background-color: #ffe6e6; /* Light red for even rows */
+}
+tr:nth-child(odd) {
+    background-color: #fff; /* White for odd rows */
+}
+.center {
+    text-align: center;
+}

@@ -1,31 +1,36 @@
 <?php
+include("connection.php");
 // Check if the form is submitted
-if (isset($_GET['latitude']) && isset($_GET['longitude'])) {
+if (isset($_GET['latitude']) && isset($_GET['longitude']) && isset($_GET['label']) && isset($_GET['barangay_code'])) {
     // Get user input
     $latitude = $_GET['latitude'];
     $longitude = $_GET['longitude'];
+    $label = $_GET['label'];
+    $barangay_code = $_GET['barangay_code'];
 
-    // Database connection details
-    $host = 'fdb1032.awardspace.net';
-    $db = '4402151_alert';
-    $user = '4402151_alert';
-    $pass = 'Pocho123!';
-
-    // Create a PDO connection
-    $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
-
-    try {
-        $pdo = new PDO($dsn, $user, $pass);
-    } catch (PDOException $e) {
-        die('Connection failed: ' . $e->getMessage());
+    // Check connection
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
     }
 
-    // Insert latitude and longitude into the 'alert' table
-    $query = $pdo->prepare("INSERT INTO alert (latitude, longitude) VALUES (?, ?)");
-    $query->execute([$latitude, $longitude]);
+    // Escape user input to prevent SQL injection
+    $latitude = mysqli_real_escape_string($conn, $latitude);
+    $longitude = mysqli_real_escape_string($conn, $longitude);
+    $label = mysqli_real_escape_string($conn, $label);
+    $barangay_code = mysqli_real_escape_string($conn, $barangay_code);
 
-    echo '<p>Latitude and Longitude inserted successfully!</p>';
+    // Insert latitude, longitude, label, and barangay code into the 'alert' table
+    $sql = "INSERT INTO alert (latitude, longitude, label, barangay_code) VALUES ('$latitude', '$longitude', '$label', '$barangay_code')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo '<p>Data inserted successfully!</p>';
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+
+    // Close connection
+    mysqli_close($conn);
 } else {
-    echo '<p>Please provide both latitude and longitude parameters.</p>';
+    echo '<p>Please provide latitude, longitude, label, and barangay code parameters.</p>';
 }
 ?>

@@ -1,10 +1,7 @@
 <?php
-session_start();
 
-if (!isset($_SESSION['user_id'])) {
-  header("Location: ..\index.php");
-  exit();
-}
+include("db/session.php");
+
 ?>
 
 <html lang="en" dir="ltr">
@@ -25,86 +22,88 @@ if (!isset($_SESSION['user_id'])) {
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" /></head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
+  </head>
+  <style>
 
+th {
+    background-color: #cc3333; /* Darker red for table header */
+    color: #fff;
+}
+tr:nth-child(even) {
+    background-color: #ffe6e6; /* Light red for even rows */
+}
+tr:nth-child(odd) {
+    background-color: #fff; /* White for odd rows */
+}
+.center {
+    text-align: center;
+}
+  </style>
 <body>
 
   <?php include "navBar.php"; ?>
 
   <div class="buttons">
+  <div style="display: flex; align-items: center;">
     <button id="exportButton" class="print" onclick="downloadFilteredTableAsCSV()">Download CSV</button>
-    <input id="searchInput" class="search-input" oninput="filterTable()" placeholder="Search"></input>
+    <input id="searchInput" class="search-input" oninput="filterTable()" placeholder="Search">
   </div>
-
-  <section class="charts">
-  <div class="history">
-  <table id="dataTable">
-    <thead id="thead">
-      <tr>
-        <th id="th">Barangay</th>
-        <th id="th">Cause</th>
-        <th id="th">Time</th>
-        <th id="th">Coordinates</th>
-      </tr>
-    </thead>
-    <tbody><?php
-include "db/connection.php";
-
-// Define the number of records per page
-$recordsPerPage = 10;
-$currentPage = isset($_GET['page']) ? $_GET['page'] : 1;
-$offset = ($currentPage - 1) * $recordsPerPage;
-
-// Fetch data from the database with pagination
-$sql = "SELECT 
-            i.*, 
-            b.barangay_name
-        FROM 
-            incident_data AS i
-        JOIN 
-            barangay AS b ON i.barangay_code = b.barangay_code
-        LIMIT $offset, $recordsPerPage";
-$result = $conn->query($sql);
-
-if ($result) {
-    if ($result->num_rows > 0) {
-        // Output data of each row
-        while ($row = $result->fetch_assoc()) {
-            $coordinates = $row["latitude"] . ", " . $row["longitude"];
-            echo "<tr onclick='openPopup(\"" . $row["barangay_name"] . "\", \"" . $row["cause"] . "\", \"" . $row["time"] . "\", \"" . addslashes($coordinates) . "\")'>";
-            echo "<td>" . $row["barangay_name"] . "</td>";
-            echo "<td>" . $row["cause"] . "</td>";
-            echo "<td>" . $row["time"] . "</td>";
-            echo "<td>" . $coordinates . "</td>";
-            echo "</tr>";
-        }
-
-        // Pagination links
-        $sqlCount = "SELECT COUNT(*) AS total FROM incident_data";
-        $resultCount = $conn->query($sqlCount);
-        $row = $resultCount->fetch_assoc();
-        $totalPages = ceil($row["total"] / $recordsPerPage);
-
-        echo "<tr><td colspan='4' style='text-align: center;'>";
-        for ($i = 1; $i <= $totalPages; $i++) {
-            echo "<a href='?page=$i'>$i</a> ";
-        }
-        echo "</td></tr>";
-    } else {
-        echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
-    }
-} else {
-    echo "Error: " . $conn->error;
-    echo "<br>Query: " . $sql;
-}
-
-$conn->close();
-?>
-
-    </tbody>
-  </table>
 </div>
 
+
+
+  <section class="charts">
+  <div class="history"  style="height:79vh; overflow: auto;">
+            <table id="dataTable">
+                <thead id="thead">
+                    <tr>
+                        <th>Barangay</th>
+                        <th>Cause</th>
+                        <th>Time</th>
+                        <th>Coordinates</th>
+                    </tr>
+                </thead>
+                <tbody><?php
+                        include "db/connection.php";
+
+                        $sql = "SELECT 
+                                i.*, 
+                                b.barangay_name
+                            FROM 
+                                incident_data AS i
+                            JOIN 
+                                barangay AS b ON i.barangay_code = b.barangay_code";
+                        $result = $conn->query($sql);
+
+                        if ($result) {
+                            if ($result->num_rows > 0) {
+                                // Output data of each row
+                                while ($row = $result->fetch_assoc()) {
+                                    $coordinates = $row["latitude"] . ", " . $row["longitude"];
+                                    echo "<tr onclick='openPopup(\"" . $row["barangay_name"] . "\", \"" . $row["cause"] . "\", \"" . $row["time"] . "\", \"" . addslashes($coordinates) . "\")'>";
+                                    echo "<td style='width: 17%;'>" . $row["barangay_name"] . "</td>";
+                                    echo "<td style='width: 12%;'>" . $row["cause"] . "</td>";
+                                    echo "<td style='width: 20%;'>" . $row["time"] . "</td>";
+                                    echo "<td style='width: 30%;'>" . $coordinates . "</td>";
+                                    
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
+                            }
+                        } else {
+                            echo "Error: " . $conn->error;
+                            echo "<br>Query: " . $sql;
+                        }
+
+                        $conn->close();
+                        ?>
+
+                </tbody>
+            </table>
+
+        </div>
 
 
     <div id="overlay">
@@ -146,39 +145,48 @@ $conn->close();
         </div>
       </div>
     </div>
-  </section>
+  </section>  <script>
+    function openPopup(barangay, cause, time, coordinates) {
 
-  <script>
-function openPopup(barangay, cause, time, coordinates) {
+      document.getElementById("barangay").value = barangay;
 
-  document.getElementById("barangay").value = barangay;
+      // Extract location from coordinates string
+      var location = coordinates.replace(/\(([^)]+)\)/, "$1");
+      document.getElementById("location").value = location.trim(); // Trim any leading/trailing whitespace
 
-  // Extract location from coordinates string
-  var location = coordinates.replace(/\(([^)]+)\)/, "$1");
-  document.getElementById("location").value = location.trim(); // Trim any leading/trailing whitespace
+      // Parse the time string to get date and time components
+      var dateTime = new Date(time);
+      var date = dateTime.toDateString(); // Get the date component
+      var time = dateTime.toLocaleTimeString(); // Get the time component
 
-  // Parse the time string to get date and time components
-  var dateTime = new Date(time);
-  var date = dateTime.toDateString(); // Get the date component
-  var time = dateTime.toLocaleTimeString(); // Get the time component
+      document.getElementById("date").value = date; // Set the date value
+      document.getElementById("time").value = time; // Set the time value
 
-  document.getElementById("date").value = date; // Set the date value
-  document.getElementById("time").value = time; // Set the time value
+      // Set the value of the input field for cause
+      var causeInput = document.getElementById("cause");
+      causeInput.value = cause;
 
-  // Set the value of the input field for cause
-  var causeInput = document.getElementById("cause");
-  causeInput.value = cause;
-
-  document.getElementById("overlay").style.display = "flex";
-}
-
+      document.getElementById("overlay").style.display = "flex";
+    }
 
     function closePopupDetails() {
       document.getElementById("overlay").style.display = "none";
     }
 
-    
-  </script>
+
+  function filterTable() {
+    var searchInput = document.getElementById("searchInput").value;
+    $.ajax({
+      type: "POST",
+      url: "db/filter.php",
+      data: { search: searchInput },
+      success: function(response) {
+        $('#dataTable tbody').html(response);
+      }
+    });
+  }
+</script>
+
 
 </body>
 

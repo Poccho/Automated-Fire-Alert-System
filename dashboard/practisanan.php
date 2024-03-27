@@ -1,52 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Time Calculator</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-    <style>
-        #map {
-            height: 400px;
-        }
-        .eta {
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-    </style>
+    <title>All Users</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/userList.css">
+
+
 </head>
+
 <body>
-    <div id="map"></div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-    <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
+    <?php include "navBar.php"; ?>
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    <form id="filterForm" onsubmit="submitForm(event)"> 
+    <input id="searchInput" class="search-input"
+            oninput="filterTable()" placeholder="Search">
 
-        L.Routing.control({
-            waypoints: [
-                L.latLng(51.5, -0.1), // Starting point
-                L.latLng(51.51, -0.12) // Ending point
-            ],
-            routeWhileDragging: true
-        }).addTo(map).on('routesfound', function(e) {
-            var routes = e.routes;
-            routes.forEach(function(route, index) {
-                var summary = route.summary;
-                var travelTime = summary.totalTime / 60; // Convert seconds to minutes
-                var destination = route.waypoints[1].latLng;
-                var etaDiv = document.createElement('div');
-                etaDiv.className = 'eta';
-                etaDiv.id = 'eta_' + destination.lat.toFixed(5) + '_' + destination.lng.toFixed(5); // Using lat and lng for the ID
-                etaDiv.innerHTML = '<p>ETA: ' + travelTime.toFixed(2) + ' minutes</p>';
-                document.body.appendChild(etaDiv);
-            });
-        });
-    </script>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>User Type</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Station Location</th>
+                <th>Barangay Code</th>
+            </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <?php
+                        include "db/connection.php";
+
+                        $sql = "SELECT * from users";
+                        $result = $conn->query($sql);
+
+                        if ($result) {
+                            if ($result->num_rows > 0) {
+                                // Output data of each row
+                                while ($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row["user_id"] . "</td>";
+                                    echo "<td>" . $row["user_type"] . "</td>";
+                                    echo "<td>" . $row["username"] . "</td>";
+                                    echo "<td>" . $row["email"] . "</td>";
+                                    echo "<td>" . $row["station_location"] . "</td>";
+                                    echo "<td>" . $row["barangay_code"] . "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' style='text-align: center;'>NO RECORDS FOUND</td></tr>";
+                            }
+                        } else {
+                            echo "Error: " . $conn->error;
+                            echo "<br>Query: " . $sql;
+                        }
+
+                        $conn->close();
+                        ?>
+        </tbody>
+    </table>
 </body>
+<script>
+  function filterTable() {
+    var searchInput = document.getElementById("searchInput").value;
+    $.ajax({
+      type: "POST",
+      url: "db/filterUser.php",
+      data: { search: searchInput },
+      success: function(response) {
+        $('table tbody').html(response);
+      }
+    });
+  }
+    </script>
 </html>

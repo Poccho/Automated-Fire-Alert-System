@@ -1,0 +1,88 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    width: 80vw;
+    height: auto; /* Ensure the form height adjusts dynamically */
+    margin-top: 0.7%;
+    margin-left: 10%;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    color: black; /* Set text color to black */
+}
+
+p{
+    font-weight: bolder;
+    font-size: larger;
+}
+
+.pair {
+    display: flex;
+    align-items: flex-start;
+}
+
+.input {
+    flex: 1; /* Adjust the flex property */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.input-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-container input, select {
+    width: 100%;
+    background-color: #fff;
+    padding: 1rem;
+    padding-right: 3rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border: 1px solid #5d5e5f;
+    border-radius: 0.5rem;
+    outline: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    color: black; /* Set text color to black */
+}
+
+.map-container {
+    flex: 1; /* Match the flex property of .input */
+    width: 50%;
+    height: 65vh;
+    margin-left: 20px;
+    border-radius: 0.5rem; /* Round up the map container */
+}
+
+.submit {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    background-color: #cc3333;
+    color: #ffffff;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    margin-top: auto;
+}
+
+.signup-link {
+    color: #6B7280;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    text-align: center;
+}
+
+.signup-link a {
+    text-decoration: underline;
+}
+
+.input-container input:focus {
+    border-color: #cc3333;
+    box-shadow: 0 0 0 2px rgba(204, 51, 51, 0.1);
+    outline: none;
+}

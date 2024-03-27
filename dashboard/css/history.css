@@ -188,7 +188,7 @@
   }
   
 /* CSS */
-input:disabled {
+input:disabled, filter:disabled {
     color: black;
 }
 

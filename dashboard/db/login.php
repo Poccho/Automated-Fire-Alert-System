@@ -6,8 +6,12 @@ session_start();
 
 // Check if the user is logged in
 if (isset($_SESSION['user_id'])) {
-  // If not logged in, redirect to the login page
-  header("Location: ../home.php");
+  // If logged in, redirect to the appropriate dashboard based on user type
+  if ($_SESSION['user_type'] == 'admin') {
+    header("Location: admin/index.php");
+  } else {
+    header("Location: ./dashboard/home.php");
+  }
   exit();
 }
 
@@ -35,13 +39,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
   // Check if the user exists
-  $stmt = $conn->prepare("SELECT user_id, password FROM users WHERE username = ?");
+  $stmt = $conn->prepare("SELECT user_id, password, user_type FROM users WHERE username = ?");
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $stmt->store_result();
 
   if ($stmt->num_rows > 0) {
-    $stmt->bind_result($userId, $storedPassword);
+    $stmt->bind_result($userId, $storedPassword, $userType);
     $stmt->fetch();
 
     // Verify the password
@@ -52,9 +56,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       // Store user information in the session
       $_SESSION['user_id'] = $userId;
       $_SESSION['username'] = $username;
+      $_SESSION['user_type'] = $userType;
 
-      // Login successful! Redirect to home.php or any other page
-      header("Location: dashboard/home.php");
+      // Redirect to the appropriate dashboard based on user type
+      if ($userType == 'admin') {
+        header("Location: admin/index.php");
+      } else {
+        header("Location: ./dashboard/home.php");
+      }
       exit(); // Make sure to stop script execution after redirection
     } else {
       echo '<script>

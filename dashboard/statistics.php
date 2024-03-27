@@ -1,12 +1,8 @@
 <?php
 include "db/connection.php";
 
-session_start();
+include("db/session.php");
 
-if (!isset($_SESSION['user_id'])) {
-  header("Location: ..\index.php");
-  exit();
-}
 
 include "db/stats.php";
 // Function to sanitize and validate input
@@ -37,7 +33,6 @@ include "db/stats.php";
 <body>
   <?php include "navBar.php"; ?>
   <div class="buttons">
-    <button id="exportButton" class="print" onclick="exportToPDF()">Download</button>
     <button class="addreport" onclick="openPopup()">Add Record</button>
   </div>
   <section class="charts">
