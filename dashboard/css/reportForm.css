@@ -278,16 +278,7 @@
   .previewMap{
     background-color: white;
     width: 38vw;
-    height: 93.5vh;
+    height: 605px;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-  }
-
-  #previewMap{
-    background-color: white;
-    width: 38vw;
-    height: 93.5vh;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    
   }

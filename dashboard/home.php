@@ -88,7 +88,7 @@ include_once("db/session.php");
                     } else {
                         document.getElementById('notificationSound').play();
                     }
-                }, 1000); // Adjust the interval as needed
+                }, 5000); // Adjust the interval as needed
             }
 
             // Highlight rows with matching addresses
@@ -129,7 +129,7 @@ function highlightMatchingRows() {
 
       setInterval(function () {
         refreshTable();
-    }, 1000);
+    }, 3000);
 
     // Initial table load
     refreshTable();

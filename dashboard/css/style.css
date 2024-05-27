@@ -126,7 +126,7 @@ a:hover {
 #map {
   position: relative;
   display: inline-block;
-  width: 72%;
+  width: 60vw;
   height: 87.5vh;
   flex: 1;
 }
@@ -139,7 +139,7 @@ i[class="fa-solid fa-repeat fa-beat fa-xs"] {
 
 .alarm-content {
   height: 87.5vh;
-  width: 28%;
+  width: 40%;
   display: inline-block;
   text-align: center;
 }
@@ -229,7 +229,8 @@ table {
 }
 
 .green-highlight {
-  background-color: #4cf84c;
+  background-color: #e7f84c;
+  z-index: 9999999;
 }
 
 td {
@@ -244,81 +245,6 @@ td {
   visibility: hidden;
 }
 
-/* CSS SA DELETE BUTTON*/
-
-#delete {
-  background-color: #ff416c;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  padding: 10px 10px;
-  font-weight: bold;
-  font-weight: bold;
-  letter-spacing: 1px;
-  border: none;
-  height: 30px;
-}
-
-#delete:hover {
-  background-color: red;
-  animation: slidernbw 5s linear infinite;
-  color: #000;
-}
-
-@keyframes slidernbw {
-  to {
-    background-position: 20vw;
-  }
-}
-
-/* CSS SA PIN BUTTON*/
-
-#pin {
-  background-color: #ff416c;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  padding: 10px 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  border: none;
-  height: 30px;
-}
-
-#pin:hover {
-  background-color: rgb(30, 255, 0);
-  animation: slidernbw 5s linear infinite;
-  color: #000;
-}
-
-#remove-route {
-  background-color: #ff416c;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  padding: 10px 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  border: none;
-  height: 30px;
-}
-
-#coordinates {
-  width: 220px;
-  overflow-x: auto;
-}
- 
-#remove-route:hover {
-  background-color: rgb(200, 255, 0);
-  animation: slidernbw 5s linear infinite;
-  color: #000;
-}
-
-@keyframes slidernbw {
-  to {
-    background-position: 20vw;
-  }
-}
 
 .piechart {
   width: 30vw;
@@ -570,9 +496,7 @@ td {
   padding: 8px 16px;
   border: 1px solid #ccc;
 }
-th {
-  background: #eee;
-}
+
 
 .search {
   background-color: white;

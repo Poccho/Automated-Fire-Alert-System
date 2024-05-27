@@ -14,9 +14,6 @@ include "db/stats.php";
 <head>
   <title>AFAS</title>
   <meta charset="utf-8" />
-  <script src="./js/popup.js"></script>
-  <script src="./js/download.js"></script>
-  <script src="js/reportMap.js"></script>
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="stylesheet" href="./css/reportForm.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -33,8 +30,13 @@ include "db/stats.php";
 <body>
   <?php include "navBar.php"; ?>
   <div class="buttons">
-    <button class="addreport" onclick="openPopup()">Add Record</button>
+  <button class="addreport" onclick="redirectToReport()">Add Record</button>
   </div>
+  <script>
+    function redirectToReport() {
+        window.location.href = "report.php";
+    }
+  </script>
   <section class="charts">
 
     <div class="svg-container">
@@ -58,9 +60,9 @@ include "db/stats.php";
       b.barangay_name AS barangay,
       COUNT(*) AS occurrence_count 
   FROM 
-      incident_data AS i
+      report AS i
   JOIN 
-      barangay AS b ON i.barangay_code = b.barangay_code
+      barangay AS b ON i.barangay_no = b.barangay_code
   GROUP BY 
       b.barangay_code;
   ";
@@ -86,7 +88,6 @@ include "db/stats.php";
       $jsonData = json_encode($data, JSON_PRETTY_PRINT);
       echo "const pathInfo = $jsonData;";
       ?>
-
       paths.forEach((path) => {
         path.addEventListener('mouseenter', (event) => {
           const pathId = event.target.getAttribute('id');
@@ -121,93 +122,6 @@ include "db/stats.php";
     </div>
     <script src="js/chart.js"></script>
 
-
-    <div id="overlay">
-      <div id="popup" class="reportForm">
-        <form class="form" id="form" method="POST">
-          <p class="title">Add Report</p>
-          <p class="message">Fill Up the necessary information needed</p>
-          <label for="choices">
-            <div class="custom-dropdown">
-              <select id="barangay" name="barangay" class="input" required>
-                <option value=""></option>
-                <option value="Apopong">Apopong</option>
-                <option value="Baluan">Baluan</option>
-                <option value="Batomelong">Batomelong</option>
-                <option value="Buayan">Buayan</option>
-                <option value="Bula">Bula</option>
-                <option value="Calumpang">Calumpang</option>
-                <option value="City Heights">City Heights</option>
-                <option value="Conel">Conel</option>
-                <option value="Dadiangas East">Dadiangas East</option>
-                <option value="Dadiangas North">Dadiangas North</option>
-                <option value="Dadiangas South">Dadiangas South</option>
-                <option value="Dadiangas West">Dadiangas West</option>
-                <option value="Fatima">Fatima</option>
-                <option value="Katangawan">Katangawan</option>
-                <option value="Labangal">Labangal</option>
-                <option value="Lagao">Lagao</option>
-                <option value="Ligaya">Ligaya</option>
-                <option value="Mabuhay">Mabuhay</option>
-                <option value="Olympog">Olympog</option>
-                <option value="San Isidro">San Isidro</option>
-                <option value="San Jose">San Jose</option>
-                <option value="Siguel">Siguel</option>
-                <option value="Sinawal">Sinawal</option>
-                <option value="Tambler">Tambler</option>
-                <option value="Tinagacan">Tinagacan</option>
-                <option value="Upper Labay">Upper Labay</option>
-              </select>
-              <span>Barangay</span>
-              <div class="dropdown-list"></div>
-            </div>
-          </label>
-          <div style="display: flex;">
-            <label style="flex: 1;">
-              <input id="latitude" name="latitude" placeholder="" type="text" class="input" required />
-              <span>Latitude</span>
-            </label>
-            <label style="flex: 1;">
-              <input id="longitude" name="longitude" placeholder="" type="text" class="input" required />
-              <span>Longitude</span>
-            </label>
-          </div>
-          <label>
-            <input id="date" name="date" placeholder="" type="text" class="input" onfocus="(this.type='date')"
-              onblur="(this.type='text')" required />
-            <span>Date</span>
-          </label>
-          <label>
-            <input id="time" name="time" placeholder="" type="text" class="input" onfocus="(this.type='time')"
-              onblur="(this.type='text')" required />
-            <span>Time</span>
-          </label>
-          <label for="choices">
-            <div class="custom-dropdown">
-              <select id="choices" name="choices" class="input" required>
-                <option value=""></option>
-                <option value="Electrical Issue">Electrical Issue</option>
-                <option value="Natural Causes">Natural Causes</option>
-                <option value="Arson">Arson</option>
-                <option value="Human Error">Human Error</option>
-                <option value="Equipment Malfunction">Equipment Malfunction</option>
-              </select>
-              <span>Cause</span>
-
-              <div class="dropdown-list"></div>
-            </div>
-          </label>
-          <button id="submitBtn" class="submit">Submit</button>
-        </form>
-        <div class="form">
-          <button class="cancel" id="cancel" onclick="event.preventDefault(); closePopup();">Cancel</button>
-        </div>
-      </div>
-      <div class="previewMap">
-        <div id="previewMap">
-        </div>
-      </div>
-    </div>
   </section>
 </body>
 

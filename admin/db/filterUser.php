@@ -32,6 +32,10 @@ barangay_code LIKE '%$search%'
             echo "<td>" . $row["email"] . "</td>";
             echo "<td>" . $row["station_location"] . "</td>";
             echo "<td>" . $row["barangay_code"] . "</td>";
+            echo "<td>";
+            echo "<i class='fa-regular fa-pen-to-square fa-lg' Style='margin-right:20px;'></i>";
+            echo "<i class='fa-regular fa-trash-can fa-lg' onclick='confirmDelete(" . $row["user_id"] . ")'></i>";
+            echo "</td>";
             echo "</tr>";
         }
     } else {

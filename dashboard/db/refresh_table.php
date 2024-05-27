@@ -1,14 +1,127 @@
 <?php
 session_start();
 
-if (!isset ($_SESSION['user_id'])) {
+// Redirect if user_id is not set in session
+if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
+
+// Fetch barangay_code from session if it exists
+$barangay_code = isset($_SESSION['barangay_code']) ? $_SESSION['barangay_code'] : null;
+
+// Log the barangay code in the console
+echo "<script>console.log('Barangay Code:', '" . $barangay_code . "');</script>";
+
 ?>
+
 <html>
 
 <head>
+    <style>
+        /* CSS SA DELETE BUTTON*/
+
+        #delete {
+            background-color: red;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            padding: 3.5px 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border: none;
+            height: 30px;
+        }
+
+        #delete:hover {
+            background-color: red;
+            animation: slidernbw 5s linear infinite;
+            color: #000;
+        }
+
+        @keyframes slidernbw {
+            to {
+                background-position: 20vw;
+            }
+        }
+
+        /* CSS SA PIN BUTTON*/
+
+        #pin {
+            background-color: rgb(86, 179, 72);
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border: none;
+            height: 30px;
+        }
+
+        #pin:hover {
+            background-color: rgb(30, 255, 0);
+            animation: slidernbw 5s linear infinite;
+            color: #000;
+        }
+
+        #remove-route {
+            background-color: rgb(125, 141, 68);
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border: none;
+            height: 30px;
+        }
+
+        #coordinates {
+            width: 220px;
+            overflow-x: auto;
+        }
+
+        #remove-route:hover {
+            background-color: rgb(200, 255, 0);
+            animation: slidernbw 5s linear infinite;
+            color: #000;
+        }
+
+        @keyframes slidernbw {
+            to {
+                background-position: 20vw;
+            }
+        }
+
+        .flash-red {
+            animation: flash-red 0.37s infinite alternate;
+        }
+
+        .flash-green {
+            background-color: lightgreen;
+        }
+
+        @keyframes flash-red {
+            0% {
+                background-color: white;
+            }
+
+            100% {
+                background-color: red;
+            }
+        }
+
+        @keyframes flash-green {
+            0% {
+                background-color: white;
+            }
+
+            100% {
+                background-color: green;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -16,7 +129,9 @@ if (!isset ($_SESSION['user_id'])) {
         <thead>
             <tr>
                 <th>Address</th>
-                <th>Actions</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -25,13 +140,21 @@ if (!isset ($_SESSION['user_id'])) {
             include "connection.php";
 
             if ($conn->connect_error) {
-                die ("Connection failed: " . $conn->connect_error);
+                die("Connection failed: " . $conn->connect_error);
             }
 
-            $sql = "(SELECT latitude, longitude, label, COUNT(*) AS count FROM alert GROUP BY latitude, longitude HAVING COUNT(*) > 1 ORDER BY alert_time ASC)
-UNION 
-(SELECT latitude, longitude, label, COUNT(*) AS count FROM alert GROUP BY latitude, longitude HAVING COUNT(*) = 1 ORDER BY alert_time ASC)
+            $sql = "
+    SELECT a.latitude, a.longitude, a.label, DATE_FORMAT(a.alert_time, '%Y-%m-%d %H:%i:%s') AS alert_time, a.alert_status AS status
+    FROM alert AS a
+    JOIN (
+        SELECT latitude, longitude, MIN(alert_time) AS min_alert_time
+        FROM alert
+        WHERE barangay_code = '$barangay_code'
+        GROUP BY latitude, longitude
+    ) AS b ON a.latitude = b.latitude AND a.longitude = b.longitude AND a.alert_time = b.min_alert_time
+    ORDER BY a.alert_status DESC, a.alert_time ASC;
 ";
+
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -39,25 +162,172 @@ UNION
                     $building = $row["label"];
                     $latitude = $row["latitude"];
                     $longitude = $row["longitude"];
-                    $count = $row["count"];
-                    echo '<tr id="' . $latitude . ',' . $longitude . '">
-                            <td>' . $building . ' (#' . $count . ')' . '</td>
-                            <td>
-                                <button id="pin" onclick="pinLocation(' . $latitude . ', ' . $longitude . ', \'' . $building . '\')"><i class="fa-solid fa-map-pin fa-bounce fa-lg"></i></button>
-                                <button id="remove-route" onclick="removeRoute(' . $latitude . ', ' . $longitude . ')"><i class="fa-solid fa-eraser fa-lg"></i></button>
-                                <button id="delete" onclick="remove(' . $latitude . ', ' . $longitude . ', \'' . $building . '\')"><i class="fa-regular fa-trash-can fa-lg"></i></button>
-                            </td>
-                        </tr>';
+                    $alert_time = $row["alert_time"];
 
+                    // Check if "alert_status" key exists in the row
+                    if (isset($row["status"])) {
+                        $status = $row["status"] == 1 ? "Active" : "Inactive";
+                        $statusClass = $row["status"] == 1 ? "flash-red" : "flash-green"; // Determine the status class
+                        $buttonDisabled = $row["status"] == 0 ? "disabled" : ""; // Determine if buttons should be disabled
+                        $buttonColor = $row["status"] == 0 ? "grey" : ""; // Determine button color
+                        // Determine delete button status
+                        $deleteButtonDisabled = $row["status"] == 1 ? "disabled" : ""; // Disable delete button if other buttons are active
+                        $deleteButtonColor = $row["status"] == 1 ? "grey" : ""; // Set delete button color to grey if other buttons are active
+                    } else {
+                        // Default values if key is undefined
+                        $status = "Unknown";
+                        $statusClass = "flash-green"; // Default class
+                        $buttonDisabled = ""; // Default
+                        $buttonColor = ""; // Default
+                        $deleteButtonDisabled = ""; // Default
+                        $deleteButtonColor = ""; // Default
+                    }
+
+                    // Generate HTML for table row with button color determined by status
+                    echo '<tr id="' . $latitude . ',' . $longitude . '" class="' . $statusClass . '" data-status="' . $row["status"] . '">
+                    <td>' . $building . '</td>
+                    <td style="width: 130px;">' . $alert_time . '</td>
+                    <td >
+                        <select id="status_' . $latitude . '_' . $longitude . '" onchange="changeStatus(' . $latitude . ', ' . $longitude . ', this.value)">
+                            <option value="1"' . ($status == "Active" ? ' selected' : '') . '>Active</option>
+                            <option value="0"' . ($status == "Inactive" ? ' selected' : '') . '>Inactive</option>
+                        </select>
+                    </td>                            
+                    <td>
+                        <button id="pin" style="background-color: ' . $buttonColor . ';" onclick="pinLocation(' . $latitude . ', ' . $longitude . ', \'' . $building . '\')" ' . $buttonDisabled . '><i class="fa-solid fa-map-pin fa-lg"></i></button>
+                        <button id="remove-route" style="background-color: ' . $buttonColor . ';" onclick="removeRoute(' . $latitude . ', ' . $longitude . ')" ' . $buttonDisabled . '><i class="fa-solid fa-eraser fa-lg"></i></button>';
+                    // Generate the link for deleting with latitude, longitude, and alert time as URL parameters
+                    echo '<a href="report.php?latitude=' . urlencode($latitude) . '&longitude=' . urlencode($longitude) . '&alert_time=' . urlencode($alert_time) . '&building=' . urlencode($building) . '" target="_blank" id="delete" style="background-color: ' . $deleteButtonColor . ';" ' . $deleteButtonDisabled . '><i class="fa-regular fa-trash-can fa-lg"></i></a>';
+                    echo '</td>
+                </tr>';
                 }
             } else {
-                echo "<tr><td colspan='3' style='text-align: center;'>No coordinates found</td></tr>";
+                echo "<tr><td colspan='4' style='text-align: center;'>No coordinates found</td></tr>";
             }
 
             $conn->close();
             ?>
+
         </tbody>
     </table>
+
+
+
+    <script>
+        function changeStatus(latitude, longitude, status) {
+            // Make an AJAX call to update the status in the database
+            let xhr = new XMLHttpRequest();
+            xhr.open("POST", "db/update_status.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        console.log("Status updated successfully");
+                        // Toggle flashing class based on the updated status
+                        let row = document.getElementById(latitude + ',' + longitude);
+                        if (status == 1) {
+                            row.classList.add('flash-red');
+                            row.classList.remove('flash-green');
+                        } else {
+                            row.classList.add('flash-green');
+                            row.classList.remove('flash-red');
+                            // Remove the route if the status is inactive
+                            statusRemoveRoute(latitude, longitude);
+                        }
+                        // Update button colors
+                        let buttons = row.querySelectorAll("button");
+                        updateButtonColors(status, buttons);
+                    } else {
+                        console.error("Failed to update status");
+                        // Show error message using SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Update Status',
+                            text: 'An error occurred while updating the status. Please try again later.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            };
+            xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&status=" + status);
+
+            // Prevent default form submission or page refresh
+            event.preventDefault(); // Add this line
+        }
+
+        function statusRemoveRoute(latitude, longitude) {
+            let existingRoute = findRoute(latitude, longitude);
+
+            if (existingRoute) {
+                // Proceed with deletion
+                deleteRoute(latitude, longitude);
+
+                // Log the constructed class name
+                var etaClass = `eta ${latitude}-${longitude}`;
+                console.log("ETA Class:", etaClass);
+
+                // Remove ETA
+                console.log("Removing ETA...");
+                removeETA(latitude, longitude); // Ensure that removeETA is called
+
+                // Send an AJAX request to retrieve the user's station location
+                $.ajax({
+                    url: 'db/user_location.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.success) {
+                            // Set the map view to the user's station location
+                            map.setView([data.latitude, data.longitude], 20);
+                        } else {
+                            console.error('Failed to retrieve user station location');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error occurred while retrieving user station location:', error);
+                    }
+                });
+
+                Swal.fire(
+                    'Fire Out!',
+                    'Fire is now considered as Inactive!',
+                    'success'
+                );
+            } else {
+                // Even if the route is not found in the routes array, still remove the ETA
+                console.log("Route not found, removing ETA and setting map view to user's station location.");
+
+                // Remove ETA
+                removeETA(latitude, longitude);
+
+                // Send an AJAX request to retrieve the user's station location
+                $.ajax({
+                    url: 'db/user_location.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.success) {
+                            // Set the map view to the user's station location
+                            map.setView([data.latitude, data.longitude], 20);
+                        } else {
+                            console.error('Failed to retrieve user station location');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error occurred while retrieving user station location:', error);
+                    }
+                });
+
+                Swal.fire(
+                    'Fire Out!',
+                    'Fire is now considered as Inactive!',
+                    'success'
+                );
+            }
+        }
+
+    </script>
+
 
     <script>
         let routes = []; // Store routes for each set of coordinates
@@ -150,97 +420,9 @@ UNION
             return hours + "h " + minutes + "m";
         }
 
-
-
-
-
         function findRoute(latitude, longitude) {
             // Find the route with given coordinates
             return routes.find(route => route.latitude === latitude && route.longitude === longitude);
-        }
-
-        function remove(latitude, longitude) {
-
-            let existingRoute = findRoute(latitude, longitude);
-
-            if (existingRoute) {
-                // Set the map view to the coordinates before showing the confirmation alert
-                map.setView([latitude, longitude], 20);
-
-                // Ask for confirmation using SweetAlert
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Proceed with deletion
-                        let xhr = new XMLHttpRequest();
-                        xhr.open("POST", "db/delete_coordinates.php", true);
-                        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState === XMLHttpRequest.DONE) {
-                                if (xhr.status === 200) {
-                                    console.log("Connected to delete_coordinates.php successfully");
-                                    let response = xhr.responseText;
-                                    if (response === "Deletion successful") {
-                                        console.log("Database deletion successful");
-                                        deleteRoute(latitude, longitude);
-                                        removeETA(latitude, longitude);
-                                        Swal.fire(
-                                            'Deleted!',
-                                            'Your file has been deleted.',
-                                            'success'
-                                        )
-                                        $.ajax({
-                                            url: 'db/user_location.php',
-                                            type: 'GET',
-                                            dataType: 'json',
-                                            success: function (data) {
-                                                if (data.success) {
-                                                    // Set the map view to the user's station location
-                                                    map.setView([data.latitude, data.longitude], 20);
-                                                } else {
-                                                    console.error('Failed to retrieve user station location');
-                                                }
-                                            },
-                                            error: function (xhr, status, error) {
-                                                console.error('Error occurred while retrieving user station location:', error);
-                                            }
-                                        });
-                                    } else {
-                                        console.error("Database deletion failed");
-                                        Swal.fire(
-                                            'Failed!',
-                                            'Database deletion failed.',
-                                            'error'
-                                        )
-                                    }
-                                } else {
-                                    console.error("Connection to delete_coordinates.php failed");
-                                    Swal.fire(
-                                        'Failed!',
-                                        'Connection to server failed.',
-                                        'error'
-                                    )
-                                }
-                            }
-                        };
-                        xhr.send("latitude=" + latitude + "&longitude=" + longitude);
-                    }
-                });
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Coordinates not pinned',
-                    text: 'Coordinates can only be deleted if they are pinned on the map to prevent accidental deletion.',
-                    confirmButtonText: 'OK'
-                });
-            }
         }
 
         function deleteRoute(latitude, longitude) {
@@ -329,8 +511,6 @@ UNION
                 });
             }
         }
-
-
 
         function removeETA(latitude, longitude) {
             var etaClass = `eta ${latitude}-${longitude}`;

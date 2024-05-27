@@ -35,17 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $username = sanitizeInput($_POST['username']);
   $password = sanitizeInput($_POST['password']);
 
-  // Hash the password (use password_hash() when storing passwords)
-  $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
   // Check if the user exists
-  $stmt = $conn->prepare("SELECT user_id, password, user_type FROM users WHERE username = ?");
+  $stmt = $conn->prepare("SELECT user_id, password, user_type, barangay_code FROM users WHERE username = ?");
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $stmt->store_result();
 
   if ($stmt->num_rows > 0) {
-    $stmt->bind_result($userId, $storedPassword, $userType);
+    $stmt->bind_result($userId, $storedPassword, $userType, $barangay_code); // Added $barangay_code to bind_result
     $stmt->fetch();
 
     // Verify the password
@@ -57,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $_SESSION['user_id'] = $userId;
       $_SESSION['username'] = $username;
       $_SESSION['user_type'] = $userType;
+      $_SESSION['barangay_code'] = $barangay_code;
 
       // Redirect to the appropriate dashboard based on user type
       if ($userType == 'admin') {

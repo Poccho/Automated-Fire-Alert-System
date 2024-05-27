@@ -1,6 +1,7 @@
 <?php
-include("db/connection.php");
-include("db/add_user.php");
+include ("db/connection.php");
+include ("db/add_user.php");
+include ("db/session.php");
 
 ?>
 
@@ -13,8 +14,8 @@ include("db/add_user.php");
     <title>Add User</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/addUser.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -22,7 +23,7 @@ include("db/add_user.php");
     <?php include "navBar.php"; ?>
 
     <section>
-        <form id="userForm" class="form"  method="POST">
+        <form id="userForm" class="form" method="POST">
             <p class="form-title">Add a User</p>
             <div class="pair">
                 <div class="input">
@@ -39,7 +40,8 @@ include("db/add_user.php");
                         <input name="username" id="username" type="text" placeholder="User Name" required>
                     </div>
                     <div class="input-container">
-                        <input name="station_location" id="stationLocationInput" type="text" placeholder="Station Location" required>
+                        <input name="station_location" id="stationLocationInput" type="text"
+                            placeholder="Station Location" required>
                     </div>
                     <div class="input-container">
                         <select name="barangay_code" id="barangay_code" required>
@@ -82,7 +84,6 @@ include("db/add_user.php");
     </section>
 
     <script src="js/map.js"></script>
-
 </body>
 
 </html>

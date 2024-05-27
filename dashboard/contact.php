@@ -12,12 +12,14 @@ include("db/session.php");
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" />
   <!-- SweetAlert CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+
 </head>
 
 <body>
   <?php
   include "navBar.php";
   ?>
+
   <section>
     <div class="container">
       <div class="content">
@@ -48,15 +50,15 @@ include("db/session.php");
             If you have any questions or inquiries about us or our system,
             please feel free to contact us.
           </p>
-          <form id="contactForm">
+          <form id="contactForm" action="db/send_mail.php" method="post">
             <div class="input-box">
-              <input required="" type="text" id="name" placeholder="Enter your name" />
+              <input required="" type="text" id="name" name="name" placeholder="Enter your name" />
             </div>
             <div class="input-box">
-              <input required="" type="email" id="email" placeholder="Enter your email" />
+              <input required="" type="email" id="email" name="email" placeholder="Enter your email" />
             </div>
             <div class="input-box message-box">
-              <textarea id="message" rows="4" placeholder="Type your message"></textarea>
+              <textarea id="message" name="message" rows="4" placeholder="Type your message"></textarea>
             </div>
             <div class="button">
               <button type="submit">Send Now</button>
@@ -71,38 +73,69 @@ include("db/session.php");
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
 
   <script>
-    document.getElementById('contactForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      var name = document.getElementById('name').value;
-      var email = document.getElementById('email').value;
-      var message = document.getElementById('message').value;
-
-      // Send the data to your PHP script using AJAX
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'db/send_mail.php', true);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState == XMLHttpRequest.DONE) {
-          if (xhr.status == 200) {
-            // Successful request
-            Swal.fire({
-              icon: 'success',
-              title: 'Success!',
-              text: 'Email has been sent successfully!'
-            });
-          } else {
-            // Request failed
-            Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              text: 'There was an error sending the email. Please try again later.'
-            });
-          }
-        }
-      };
-      xhr.send('name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email) + '&message=' + encodeURIComponent(message));
+  document.getElementById("contactForm").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent the form from submitting normally
+    
+    // Show SweetAlert loading overlay
+    Swal.fire({
+      title: 'Sending Email',
+      html: 'Please wait...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
     });
-  </script>
+    
+    var formData = new FormData(this);
+    
+    fetch("db/send_mail.php", {
+      method: "POST",
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Hide SweetAlert loading overlay once the response is received
+      Swal.close();
+      
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Email has been sent successfully.',
+          willClose: () => {
+            clearFormFields(); // Clear form fields after closing SweetAlert
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong! Please try again later.'
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Hide SweetAlert loading overlay in case of an error
+      Swal.close();
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Something went wrong! Please try again later. Error: ' + error.message // Include error message
+      });
+    });
+  });
+
+  function clearFormFields() {
+    // Clear input fields
+    document.getElementById("name").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("message").value = "";
+  }
+</script>
+
+
 </body>
 
 </html>
