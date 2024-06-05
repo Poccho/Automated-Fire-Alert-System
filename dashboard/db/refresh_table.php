@@ -135,198 +135,161 @@ echo "<script>console.log('Barangay Code:', '" . $barangay_code . "');</script>"
             </tr>
         </thead>
         <tbody>
-            <?php
-            // PHP code to fetch coordinates from the database and display them in the table
-            include "connection.php";
+        <?php
+        // PHP code to fetch coordinates from the database and display them in the table
+        include "connection.php";
 
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
-            $sql = "
-    SELECT a.latitude, a.longitude, a.label, DATE_FORMAT(a.alert_time, '%Y-%m-%d %H:%i:%s') AS alert_time, a.alert_status AS status
-    FROM alert AS a
-    JOIN (
-        SELECT latitude, longitude, MIN(alert_time) AS min_alert_time
-        FROM alert
-        WHERE barangay_code = '$barangay_code'
-        GROUP BY latitude, longitude
-    ) AS b ON a.latitude = b.latitude AND a.longitude = b.longitude AND a.alert_time = b.min_alert_time
-    ORDER BY a.alert_status DESC, a.alert_time ASC;
-";
-
-            $result = $conn->query($sql);
-
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    $building = $row["label"];
-                    $latitude = $row["latitude"];
-                    $longitude = $row["longitude"];
-                    $alert_time = $row["alert_time"];
-
-                    // Check if "alert_status" key exists in the row
-                    if (isset($row["status"])) {
-                        $status = $row["status"] == 1 ? "Active" : "Inactive";
-                        $statusClass = $row["status"] == 1 ? "flash-red" : "flash-green"; // Determine the status class
-                        $buttonDisabled = $row["status"] == 0 ? "disabled" : ""; // Determine if buttons should be disabled
-                        $buttonColor = $row["status"] == 0 ? "grey" : ""; // Determine button color
-                        // Determine delete button status
-                        $deleteButtonDisabled = $row["status"] == 1 ? "disabled" : ""; // Disable delete button if other buttons are active
-                        $deleteButtonColor = $row["status"] == 1 ? "grey" : ""; // Set delete button color to grey if other buttons are active
-                    } else {
-                        // Default values if key is undefined
-                        $status = "Unknown";
-                        $statusClass = "flash-green"; // Default class
-                        $buttonDisabled = ""; // Default
-                        $buttonColor = ""; // Default
-                        $deleteButtonDisabled = ""; // Default
-                        $deleteButtonColor = ""; // Default
-                    }
-
-                    // Generate HTML for table row with button color determined by status
-                    echo '<tr id="' . $latitude . ',' . $longitude . '" class="' . $statusClass . '" data-status="' . $row["status"] . '">
-                    <td>' . $building . '</td>
-                    <td style="width: 130px;">' . $alert_time . '</td>
-                    <td >
-                        <select id="status_' . $latitude . '_' . $longitude . '" onchange="changeStatus(' . $latitude . ', ' . $longitude . ', this.value)">
-                            <option value="1"' . ($status == "Active" ? ' selected' : '') . '>Active</option>
-                            <option value="0"' . ($status == "Inactive" ? ' selected' : '') . '>Inactive</option>
-                        </select>
-                    </td>                            
-                    <td>
-                        <button id="pin" style="background-color: ' . $buttonColor . ';" onclick="pinLocation(' . $latitude . ', ' . $longitude . ', \'' . $building . '\')" ' . $buttonDisabled . '><i class="fa-solid fa-map-pin fa-lg"></i></button>
-                        <button id="remove-route" style="background-color: ' . $buttonColor . ';" onclick="removeRoute(' . $latitude . ', ' . $longitude . ')" ' . $buttonDisabled . '><i class="fa-solid fa-eraser fa-lg"></i></button>';
-                    // Generate the link for deleting with latitude, longitude, and alert time as URL parameters
-                    echo '<a href="report.php?latitude=' . urlencode($latitude) . '&longitude=' . urlencode($longitude) . '&alert_time=' . urlencode($alert_time) . '&building=' . urlencode($building) . '" target="_blank" id="delete" style="background-color: ' . $deleteButtonColor . ';" ' . $deleteButtonDisabled . '><i class="fa-regular fa-trash-can fa-lg"></i></a>';
-                    echo '</td>
-                </tr>';
-                }
-            } else {
-                echo "<tr><td colspan='4' style='text-align: center;'>No coordinates found</td></tr>";
-            }
-
-            $conn->close();
-            ?>
-
-        </tbody>
-    </table>
-
-
-
-    <script>
-        function changeStatus(latitude, longitude, status) {
-            // Make an AJAX call to update the status in the database
-            let xhr = new XMLHttpRequest();
-            xhr.open("POST", "db/update_status.php", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        console.log("Status updated successfully");
-                        // Toggle flashing class based on the updated status
-                        let row = document.getElementById(latitude + ',' + longitude);
-                        if (status == 1) {
-                            row.classList.add('flash-red');
-                            row.classList.remove('flash-green');
-                        } else {
-                            row.classList.add('flash-green');
-                            row.classList.remove('flash-red');
-                            // Remove the route if the status is inactive
-                            statusRemoveRoute(latitude, longitude);
-                        }
-                        // Update button colors
-                        let buttons = row.querySelectorAll("button");
-                        updateButtonColors(status, buttons);
-                    } else {
-                        console.error("Failed to update status");
-                        // Show error message using SweetAlert
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed to Update Status',
-                            text: 'An error occurred while updating the status. Please try again later.',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                }
-            };
-            xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&status=" + status);
-
-            // Prevent default form submission or page refresh
-            event.preventDefault(); // Add this line
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
         }
 
-        function statusRemoveRoute(latitude, longitude) {
-            let existingRoute = findRoute(latitude, longitude);
+        $sql = "
+        SELECT a.latitude, a.longitude, a.label, DATE_FORMAT(a.alert_time, '%Y-%m-%d %H:%i:%s') AS alert_time, a.alert_status AS status
+        FROM alert AS a
+        JOIN (
+            SELECT latitude, longitude, MIN(alert_time) AS min_alert_time
+            FROM alert
+            WHERE barangay_code = '$barangay_code'
+            GROUP BY latitude, longitude
+        ) AS b ON a.latitude = b.latitude AND a.longitude = b.longitude AND a.alert_time = b.min_alert_time
+        ORDER BY a.alert_status DESC, a.alert_time ASC;
+        ";
 
-            if (existingRoute) {
-                // Proceed with deletion
-                deleteRoute(latitude, longitude);
+        $result = $conn->query($sql);
 
-                // Log the constructed class name
-                var etaClass = `eta ${latitude}-${longitude}`;
-                console.log("ETA Class:", etaClass);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $building = $row["label"];
+                $latitude = $row["latitude"];
+                $longitude = $row["longitude"];
+                $alert_time_unformat= $row["alert_time"];
+                $datetime = new DateTime($alert_time_unformat);
+                $alert_time = $datetime->format('Y-m-d H:i'); // Format to 'YYYY-MM-DD HH:MM'
 
-                // Remove ETA
-                console.log("Removing ETA...");
-                removeETA(latitude, longitude); // Ensure that removeETA is called
+                
 
-                // Send an AJAX request to retrieve the user's station location
-                $.ajax({
-                    url: 'db/user_location.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data.success) {
-                            // Set the map view to the user's station location
-                            map.setView([data.latitude, data.longitude], 20);
-                        } else {
-                            console.error('Failed to retrieve user station location');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error occurred while retrieving user station location:', error);
-                    }
-                });
+                // Check if "alert_status" key exists in the row
+                if (isset($row["status"])) {
+                    $status = $row["status"] == 1 ? "Active" : "Inactive";
+                    $statusClass = $row["status"] == 1 ? "flash-red" : "flash-green"; // Determine the status class
+                    $buttonDisabled = $row["status"] == 0 ? "disabled" : ""; // Determine if buttons should be disabled
+                    $buttonColor = $row["status"] == 0 ? "grey" : ""; // Determine button color
+                    // Determine delete button status
+                    $deleteButtonDisabled = $row["status"] == 1 ? "disabled" : ""; // Disable delete button if other buttons are active
+                    $deleteButtonColor = $row["status"] == 1 ? "grey" : ""; // Set delete button color to grey if other buttons are active
+                    $deleteHref = $row["status"] == 1 ? "#" : 'report.php?latitude=' . urlencode($latitude) . '&longitude=' . urlencode($longitude) . '&alert_time=' . urlencode($alert_time) . '&building=' . urlencode($building); // Set href to "#" if status is active
+                } else {
+                    // Default values if key is undefined
+                    $status = "Unknown";
+                    $statusClass = "flash-green"; // Default class
+                    $buttonDisabled = ""; // Default
+                    $buttonColor = ""; // Default
+                    $deleteButtonDisabled = ""; // Default
+                    $deleteButtonColor = ""; // Default
+                    $deleteHref = 'report.php?latitude=' . urlencode($latitude) . '&longitude=' . urlencode($longitude) . '&alert_time=' . urlencode($alert_time) . '&building=' . urlencode($building); // Default href
+                }
 
-                Swal.fire(
-                    'Fire Out!',
-                    'Fire is now considered as Inactive!',
-                    'success'
-                );
-            } else {
-                // Even if the route is not found in the routes array, still remove the ETA
-                console.log("Route not found, removing ETA and setting map view to user's station location.");
-
-                // Remove ETA
-                removeETA(latitude, longitude);
-
-                // Send an AJAX request to retrieve the user's station location
-                $.ajax({
-                    url: 'db/user_location.php',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        if (data.success) {
-                            // Set the map view to the user's station location
-                            map.setView([data.latitude, data.longitude], 20);
-                        } else {
-                            console.error('Failed to retrieve user station location');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error occurred while retrieving user station location:', error);
-                    }
-                });
-
-                Swal.fire(
-                    'Fire Out!',
-                    'Fire is now considered as Inactive!',
-                    'success'
-                );
+                // Generate HTML for table row with button color determined by status
+                echo '<tr id="' . $latitude . ',' . $longitude . '" class="' . $statusClass . '" data-status="' . $row["status"] . '">
+                <td>' . $building . '</td>
+                <td style="width: 130px;">' . $alert_time . '</td>
+                <td>
+                    <select id="status_' . $latitude . '_' . $longitude . '" onchange="changeStatus(' . $latitude . ', ' . $longitude . ', this.value)">
+                        <option value="1"' . ($status == "Active" ? ' selected' : '') . '>Active</option>
+                        <option value="0"' . ($status == "Inactive" ? ' selected' : '') . '>Inactive</option>
+                    </select>
+                </td>
+                <td>
+                    <button id="pin" style="background-color: ' . $buttonColor . ';" onclick="pinLocation(' . $latitude . ', ' . $longitude . ', \'' . $building . '\')" ' . $buttonDisabled . '><i class="fa-solid fa-map-pin fa-lg"></i></button>
+                    <button id="remove-route" style="background-color: ' . $buttonColor . ';" onclick="removeRoute(' . $latitude . ', ' . $longitude . ')" ' . $buttonDisabled . '><i class="fa-solid fa-eraser fa-lg"></i></button>';
+                // Generate the link for deleting with latitude, longitude, and alert time as URL parameters
+                echo '<a href="' . $deleteHref . '" target="_blank" id="delete" style="background-color: ' . $deleteButtonColor . '; pointer-events: ' . ($deleteButtonDisabled ? 'none' : 'auto') . ';" ' . $deleteButtonDisabled . '><i class="fa-regular fa-trash-can fa-lg"></i></a>';
+                echo '</td>
+            </tr>';
             }
+        } else {
+            echo "<tr><td colspan='4' style='text-align: center;'>no alerts found</td></tr>";
         }
 
-    </script>
+        $conn->close();
+        ?>
+    </tbody>
+</table>
+
+<script>
+    function changeStatus(latitude, longitude, status) {
+        // Make an AJAX call to update the status in the database
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "db/update_status.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log("Status updated successfully");
+                    // Toggle flashing class based on the updated status
+                    let row = document.getElementById(latitude + ',' + longitude);
+                    if (status == 1) {
+                        row.classList.add('flash-red');
+                        row.classList.remove('flash-green');
+                    } else {
+                        row.classList.add('flash-green');
+                        row.classList.remove('flash-red');
+                        // Remove the route if the status is inactive
+                        statusRemoveRoute(latitude, longitude);
+                    }
+                    // Update button colors
+                    let buttons = row.querySelectorAll("button");
+                    updateButtonColors(status, buttons);
+                    // Disable/Enable delete button based on status
+                    let deleteLink = row.querySelector("#delete");
+                    if (status == 1) {
+                        deleteLink.setAttribute('disabled', 'disabled');
+                        deleteLink.style.backgroundColor = 'grey';
+                        deleteLink.style.pointerEvents = 'none'; // Disable link
+                        deleteLink.href = '#'; // Prevent navigation
+                    } else {
+                        deleteLink.removeAttribute('disabled');
+                        deleteLink.style.backgroundColor = 'red';
+                        deleteLink.style.pointerEvents = 'auto'; // Enable link
+                        deleteLink.href = 'report.php?latitude=' + latitude + '&longitude=' + longitude + '&alert_time=' + alert_time + '&building=' + building; // Set correct URL
+                    }
+                } else {
+                    console.error("Failed to update status");
+                    // Show error message or take appropriate action
+                }
+            }
+        };
+        xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&status=" + status);
+    }
+
+    function statusRemoveRoute(latitude, longitude) {
+        // Make an AJAX call to remove the route
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "db/remove_route.php", true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    console.log("Route removed successfully");
+                    // Remove the row from the table
+                    let row = document.getElementById(latitude + ',' + longitude);
+                    row.parentNode.removeChild(row);
+                } else {
+                    console.error("Failed to remove route");
+                    // Show error message or take appropriate action
+                }
+            }
+        };
+        xhr.send("latitude=" + latitude + "&longitude=" + longitude);
+    }
+
+    function updateButtonColors(status, buttons) {
+        let color = (status == 1) ? "" : "grey";
+        buttons.forEach(button => {
+            button.style.backgroundColor = color;
+        });
+    }
+</script>
 
 
     <script>

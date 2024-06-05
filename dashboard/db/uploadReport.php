@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Redirect if user_id is not set in session
 if (!isset($_SESSION['user_id'])) {
@@ -56,9 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Split coordinates into longitude and latitude
 list($latitude, $longitude) = explode(',', $coordinates);
 
-// Output longitude and latitude to the console
-echo "Longitude: $longitude\n";
-echo "Latitude: $latitude\n";
+
 
     // SECTION I - INCIDENT
     $type_of_incident = $_POST['type_of_incident'];
@@ -114,8 +111,7 @@ echo "Latitude: $latitude\n";
 
         // Execute the section queries
         if ($conn->query($sql_section1) === TRUE && $conn->query($sql_section2) === TRUE && $conn->query($sql_section3) === TRUE && $conn->query($sql_section4) === TRUE) {
-            echo "Longitude: $longitude\n";
-            echo "Latitude: $latitude\n";
+
 
             // Delete row from alert table based on coordinates
             $sql_delete_alert = "DELETE FROM alert WHERE longitude = '$longitude' AND latitude = '$latitude'";
@@ -133,7 +129,7 @@ echo "Latitude: $latitude\n";
                             cancelButtonText: 'No'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                window.location.href = '../report.php';
+                                window.location.href = 'report.php';
                             } else {
                                 window.close();
                             }
@@ -144,14 +140,37 @@ echo "Latitude: $latitude\n";
             $conn->close();
             // Terminate script execution
             die();
-        } else {
-            echo "Error: " . $sql_section1 . "<br>" . $conn->error;
-            echo "Error: " . $sql_section2 . "<br>" . $conn->error;
-            echo "Error: " . $sql_section3 . "<br>" . $conn->error;
-            echo "Error: " . $sql_section4 . "<br>" . $conn->error;
+        }  else {
+            $errorMessages = [];
+            if ($conn->query($sql_section1) !== TRUE) {
+                $errorMessages[] = "Error in section 1: " . $conn->error;
+            }
+            if ($conn->query($sql_section2) !== TRUE) {
+                $errorMessages[] = "Error in section 2: " . $conn->error;
+            }
+            if ($conn->query($sql_section3) !== TRUE) {
+                $errorMessages[] = "Error in section 3: " . $conn->error;
+            }
+            if ($conn->query($sql_section4) !== TRUE) {
+                $errorMessages[] = "Error in section 4: " . $conn->error;
+            }
+    
+            $errorMessagesString = implode("<br>", $errorMessages);
+            echo "<script>swal.fire({
+                title: 'Error!',
+                html: '{$errorMessagesString}',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });</script>";
         }
     } else {
-        echo "Error: " . $sql_report . "<br>" . $conn->error;
+        $errorMessage = "Error in report section: " . $conn->error;
+        echo "<script>swal.fire({
+            title: 'Error!',
+            html: '{$errorMessage}',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });</script>";
     }
 
     // Close database connection

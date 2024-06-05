@@ -33,9 +33,16 @@ include "db/stats.php";
   <button class="addreport" onclick="redirectToReport()">Add Record</button>
   </div>
   <script>
-    function redirectToReport() {
-        window.location.href = "report.php";
+function redirectToReport() {
+    var newTab = window.open("report.php", "_blank");
+    if (newTab) {
+        newTab.focus();
+    } else {
+        // If the new tab was blocked, alert the user or handle it appropriately
+        alert('Unable to open the report. Please check your popup settings.');
     }
+}
+
   </script>
   <section class="charts">
 
@@ -118,7 +125,7 @@ include "db/stats.php";
     </script>
 
     <div class="barchart" id="linechart">
-      <canvas id="fireOccurrencesChart" width="800" height="400"></canvas>
+      <canvas id="fireOccurrencesChart" width="400" height="400"></canvas>
     </div>
     <script src="js/chart.js"></script>
 

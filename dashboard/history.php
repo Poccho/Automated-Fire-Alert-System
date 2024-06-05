@@ -62,7 +62,7 @@ include("db/session.php");
 
   <section class="charts">
     <div class="history" style="height:79vh; overflow: auto;">
-      <table id="dataTable">
+    <table id="dataTable">
         <thead id="thead">
           <tr></tr>
             <th>Barangay</th>
@@ -87,12 +87,21 @@ include("db/session.php");
           if ($result->num_rows > 0) {
             // Output data of each row
             while ($row = $result->fetch_assoc()) {
+              // Format alarm_time
+              $alarm_time = $row["alarm_time"];
+              try {
+                  $datetime = new DateTime($alarm_time);
+                  $alarm_time_formatted = $datetime->format('Y-m-d H:i'); // Format to 'YYYY-MM-DD HH:MM'
+              } catch (Exception $e) {
+                  $alarm_time_formatted = "Invalid date-time format";
+              }
+              
               // Output each row with a class for row-click handling
               echo "<tr class='row-link' data-incident-no='" . $row["incident_no"] . "'>";
               echo "<td style='width: 17%;'>" . $row["barangay_name"] . "</td>";
               echo "<td style='width: 17%;'>" . $row["type_of_incident"] . "</td>";
               echo "<td style='width: 12%;'>" . $row["date"] . "</td>";
-              echo "<td style='width: 20%;'>" . $row["alarm_time"] . "</td>";
+              echo "<td style='width: 20%;'>" . $alarm_time_formatted . "</td>";
               echo "</tr>";
             }
           } else {
@@ -105,9 +114,9 @@ include("db/session.php");
 
         $conn->close();
         ?>
-
         </tbody>
       </table>
+
 
     </div>
 

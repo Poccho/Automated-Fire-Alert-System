@@ -43,31 +43,44 @@ if (isDataEmpty(fireOccurrencesData)) {
     options: {
       responsive: true, // Set responsive to true
       maintainAspectRatio: false, // Ensure chart maintains aspect ratio
-      title: {
-        display: true,
-        text: "Fire Occurrences per Month per Barangay in General Santos City",
-      },
-      scales: {
-        xAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Month",
-            },
-          },
-        ],
-        yAxes: [
-          {
-            scaleLabel: {
-              display: true,
-              labelString: "Number of Fire Occurrences",
-            },
-          },
-        ],
-      },
       plugins: {
+        title: {
+          display: true,
+          text: "Fire Occurrences per Month per Barangay in General Santos City",
+        },
+        legend: {
+          display: true, // Ensure the legend is displayed
+          position: 'top', // You can adjust the position ('top', 'bottom', 'left', 'right')
+        },
         colorschemes: {
           scheme: "brewer.Paired12", // Use a color scheme with 12 distinct colors
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: "Months", // Label for x-axis
+          },
+          ticks: {
+            maxRotation: 0,
+            autoSkip: false,
+            callback: function(value, index, values) {
+              // Assuming the labels are 1-12 for the months
+              return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][value - 0] || '';
+            }
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: "No. of Incidents", // Label for y-axis
+          },
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1, // Ensure y-axis labels are whole numbers
+            precision: 0 // Display only whole numbers
+          },
         },
       },
       elements: {
